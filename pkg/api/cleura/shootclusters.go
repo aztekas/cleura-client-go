@@ -152,3 +152,33 @@ func (c *Client) DeleteWorkerGroup(clusterName string, clusterRegion string, clu
 	}
 	return &updatedShootCluster, nil
 }
+
+func (c *Client) GenerateKubeConfig(clusterRegion string, clusterProject string, clusterName string, durationSeconds int64) ([]byte, error) {
+	//https://rest.cleura.cloud/gardener/v1/public/shoot/kna1/b5d2bf2c162444f4918aaa4cb534a612/myshoot/adminkubeconfig
+
+	type Config struct {
+		ExpirationSeconds int64 `json:"expirationSeconds"`
+	}
+	type Request struct {
+		Config Config `json:"config"`
+	}
+	kubeConfigRequest := Request{
+		Config: Config{
+			ExpirationSeconds: durationSeconds,
+		},
+	}
+	requestJsonByte, err := json.Marshal(kubeConfigRequest)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/gardener/v1/public/shoot/%s/%s/%s/adminkubeconfig", c.HostURL, clusterRegion, clusterProject, clusterName), strings.NewReader(string(requestJsonByte)))
+	if err != nil {
+		return nil, err
+	}
+	body, err := c.doRequest(req, 200)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}

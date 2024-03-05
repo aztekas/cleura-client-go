@@ -19,8 +19,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "Cleura API CLI"
-	//var commonOutput string
-	app.Version = "v0.0.2"
+	app.Version = "v0.0.3"
 	app.Commands = []*cli.Command{
 		{
 			Name: "token",
@@ -111,23 +110,25 @@ func main() {
 			},
 		},
 		{
-			Name: "domains",
+			Name: "domain",
 			Subcommands: []*cli.Command{
 				{
 					Name:   "list",
 					Action: domainsList,
 					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name:    "token",
-							Aliases: []string{"t"},
-							Usage:   "Token to validate",
-							EnvVars: []string{"CLEURA_API_TOKEN"},
+							Name:     "token",
+							Aliases:  []string{"t"},
+							Usage:    "Token to validate",
+							Required: true,
+							EnvVars:  []string{"CLEURA_API_TOKEN"},
 						},
 						&cli.StringFlag{
-							Name:    "username",
-							Aliases: []string{"u"},
-							Usage:   "Username token belongs to",
-							EnvVars: []string{"CLEURA_API_USERNAME"},
+							Name:     "username",
+							Required: true,
+							Aliases:  []string{"u"},
+							Usage:    "Username token belongs to",
+							EnvVars:  []string{"CLEURA_API_USERNAME"},
 						},
 						&cli.StringFlag{
 							Name:    "api-host",
@@ -140,23 +141,25 @@ func main() {
 			},
 		},
 		{
-			Name: "projects",
+			Name: "project",
 			Subcommands: []*cli.Command{
 				{
 					Name:   "list",
 					Action: projectsList,
 					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name:    "token",
-							Aliases: []string{"t"},
-							Usage:   "Token to validate",
-							EnvVars: []string{"CLEURA_API_TOKEN"},
+							Name:     "token",
+							Required: true,
+							Aliases:  []string{"t"},
+							Usage:    "Token to validate",
+							EnvVars:  []string{"CLEURA_API_TOKEN"},
 						},
 						&cli.StringFlag{
-							Name:    "username",
-							Aliases: []string{"u"},
-							Usage:   "Username token belongs to",
-							EnvVars: []string{"CLEURA_API_USERNAME"},
+							Name:     "username",
+							Required: true,
+							Aliases:  []string{"u"},
+							Usage:    "Username token belongs to",
+							EnvVars:  []string{"CLEURA_API_USERNAME"},
 						},
 						&cli.StringFlag{
 							Name:    "api-host",
@@ -165,9 +168,71 @@ func main() {
 							Value:   "https://rest.cleura.cloud",
 						},
 						&cli.StringFlag{
-							Name:    "domain-id",
+							Name:     "domain-id",
+							Required: true,
+							Aliases:  []string{"d"},
+							Usage:    "Openstack domain id. Try `cleura domains list` for the list of available domains",
+						},
+					},
+				},
+			},
+		},
+		{
+			Name: "shoot",
+			Subcommands: []*cli.Command{
+				{
+					Name:        "generate-kubeconfig",
+					Action:      getKubeconfig,
+					Description: "Overwrites existing file",
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:    "output-path",
+							Aliases: []string{"o"},
+							Usage:   "Specify path with filename to store kubeconfig",
+						},
+						&cli.StringFlag{
+							Name:     "username",
+							Required: true,
+							Aliases:  []string{"u"},
+							Usage:    "Username token belongs to",
+							EnvVars:  []string{"CLEURA_API_USERNAME"},
+						},
+						&cli.StringFlag{
+							Name:     "token",
+							Required: true,
+							Aliases:  []string{"t"},
+							Usage:    "Token to validate",
+							EnvVars:  []string{"CLEURA_API_TOKEN"},
+						},
+						&cli.StringFlag{
+							Name:    "api-host",
+							Aliases: []string{"host"},
+							Usage:   "Cleura API host",
+							Value:   "https://rest.cleura.cloud",
+						},
+						&cli.StringFlag{
+							Name:     "cluster-name",
+							Required: true,
+							Aliases:  []string{"n"},
+							Usage:    "Shoot cluster name",
+						},
+						&cli.StringFlag{
+							Name:     "cluster-region",
+							Required: true,
+							Aliases:  []string{"r"},
+							Usage:    "Openstack cluster region. Try \"cleura domains list\" command for available regions in your domain",
+						},
+						&cli.StringFlag{
+							Name:     "project-id",
+							Required: true,
+							Aliases:  []string{"p"},
+							Usage:    "Openstack project id. Try \"cleura project list\" command for the list of available projects",
+						},
+						&cli.Int64Flag{
+							Name:    "config-duration",
 							Aliases: []string{"d"},
-							Usage:   "Openstack domain id. Try `cleura domains list` for the list of available domains",
+							Usage:   "How long will the generated kubeconfig be valid in seconds. Defaults to 1 day (86400 seconds)",
+							Value:   86400,
 						},
 					},
 				},
@@ -182,12 +247,6 @@ func main() {
 func tokenValidate(c *cli.Context) error {
 	token := c.String("token")
 	username := c.String("username")
-	if token == "" {
-		return errors.New("error: token is not provided")
-	}
-	if username == "" {
-		return errors.New("error: username is not provided")
-	}
 	host := c.String("api-host")
 	client, err := cleura.NewClientNoPassword(&host, &username, &token)
 	if err != nil {
@@ -197,18 +256,12 @@ func tokenValidate(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("token is valid")
+	log.Println("token is valid")
 	return nil
 }
 func tokenRevoke(c *cli.Context) error {
 	token := c.String("token")
 	username := c.String("username")
-	if token == "" {
-		return errors.New("error: token is not provided")
-	}
-	if username == "" {
-		return errors.New("error: username is not provided")
-	}
 	host := c.String("api-host")
 	client, err := cleura.NewClientNoPassword(&host, &username, &token)
 	if err != nil {
@@ -218,14 +271,11 @@ func tokenRevoke(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("token successfully revoked")
+	log.Println("token successfully revoked")
 	return nil
 }
 func tokenPrint(c *cli.Context) error {
 	token := os.Getenv("CLEURA_API_TOKEN")
-	if token == "" {
-		return errors.New("CLEURA_API_TOKEN is not set")
-	}
 	fmt.Println(token)
 	return nil
 }
@@ -275,12 +325,6 @@ func domainsList(c *cli.Context) error {
 
 	token := c.String("token")
 	username := c.String("username")
-	if token == "" {
-		return errors.New("error: token is not provided")
-	}
-	if username == "" {
-		return errors.New("error: username is not provided")
-	}
 	host := c.String("api-host")
 	client, err := cleura.NewClientNoPassword(&host, &username, &token)
 	if err != nil {
@@ -302,7 +346,6 @@ func domainsList(c *cli.Context) error {
 		}
 		t.AppendRow(table.Row{fmt.Sprintf("%s(enabled:%s,status:%s)", domain.Name, strconv.FormatBool(domain.Enabled), domain.Status), domain.Id, regs})
 	}
-
 	fmt.Println(t.Render())
 	return nil
 
@@ -313,15 +356,7 @@ func projectsList(c *cli.Context) error {
 	token := c.String("token")
 	username := c.String("username")
 	domain_id := c.String("domain-id")
-	if token == "" {
-		return errors.New("error: token is not provided")
-	}
-	if username == "" {
-		return errors.New("error: username is not provided")
-	}
-	if domain_id == "" {
-		return errors.New("error: domain-id is not provided")
-	}
+
 	host := c.String("api-host")
 	client, err := cleura.NewClientNoPassword(&host, &username, &token)
 	if err != nil {
@@ -341,5 +376,58 @@ func projectsList(c *cli.Context) error {
 	}
 
 	fmt.Println(t.Render())
+	return nil
+}
+
+func getKubeconfig(c *cli.Context) error {
+
+	token := c.String("token")
+	username := c.String("username")
+	host := c.String("api-host")
+
+	clusterName := c.String("cluster-name")
+	clusterRegion := c.String("cluster-region")
+	clusterProjectId := c.String("project-id")
+	configDuration := c.Int64("config-duration")
+	outputPath := c.String("output-path")
+
+	client, err := cleura.NewClientNoPassword(&host, &username, &token)
+	if err != nil {
+		return err
+	}
+	body, err := client.GenerateKubeConfig(clusterRegion, clusterProjectId, clusterName, configDuration)
+	if err != nil {
+		return err
+	}
+	var configContent interface{}
+	err = json.Unmarshal(body, &configContent)
+	if err != nil {
+		return err
+	}
+	if outputPath != "" {
+		f, err := os.OpenFile(outputPath, os.O_RDWR|os.O_CREATE, 0600)
+		if err != nil {
+			return err
+		}
+		if _, err := f.Write([]byte(configContent.(string))); err != nil {
+			f.Close() // ignore error; Write error takes precedence
+			return err
+		}
+		if err := f.Close(); err != nil {
+			return err
+		}
+	} else {
+		fmt.Println(configContent.(string))
+	}
+
+	return nil
+}
+
+func validateCredentials(c *cli.Context) error {
+	//TODO
+	// Check env variables
+	// Check rc file
+	// Check input flags
+
 	return nil
 }
