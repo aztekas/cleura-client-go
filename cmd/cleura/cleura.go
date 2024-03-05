@@ -8,8 +8,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli/v2"
 )
 
@@ -17,7 +20,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "Cleura API CLI"
 	//var commonOutput string
-	app.Version = "v0.0.1"
+	app.Version = "v0.0.2"
 	app.Commands = []*cli.Command{
 		{
 			Name: "token",
@@ -102,6 +105,69 @@ func main() {
 							Aliases: []string{"host"},
 							Usage:   "Cleura API host",
 							Value:   "https://rest.cleura.cloud",
+						},
+					},
+				},
+			},
+		},
+		{
+			Name: "domains",
+			Subcommands: []*cli.Command{
+				{
+					Name:   "list",
+					Action: domainsList,
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:    "token",
+							Aliases: []string{"t"},
+							Usage:   "Token to validate",
+							EnvVars: []string{"CLEURA_API_TOKEN"},
+						},
+						&cli.StringFlag{
+							Name:    "username",
+							Aliases: []string{"u"},
+							Usage:   "Username token belongs to",
+							EnvVars: []string{"CLEURA_API_USERNAME"},
+						},
+						&cli.StringFlag{
+							Name:    "api-host",
+							Aliases: []string{"host"},
+							Usage:   "Cleura API host",
+							Value:   "https://rest.cleura.cloud",
+						},
+					},
+				},
+			},
+		},
+		{
+			Name: "projects",
+			Subcommands: []*cli.Command{
+				{
+					Name:   "list",
+					Action: projectsList,
+					Flags: []cli.Flag{
+						&cli.StringFlag{
+							Name:    "token",
+							Aliases: []string{"t"},
+							Usage:   "Token to validate",
+							EnvVars: []string{"CLEURA_API_TOKEN"},
+						},
+						&cli.StringFlag{
+							Name:    "username",
+							Aliases: []string{"u"},
+							Usage:   "Username token belongs to",
+							EnvVars: []string{"CLEURA_API_USERNAME"},
+						},
+						&cli.StringFlag{
+							Name:    "api-host",
+							Aliases: []string{"host"},
+							Usage:   "Cleura API host",
+							Value:   "https://rest.cleura.cloud",
+						},
+						&cli.StringFlag{
+							Name:    "domain-id",
+							Aliases: []string{"d"},
+							Usage:   "Openstack domain id. Try `cleura domains list` for the list of available domains",
 						},
 					},
 				},
@@ -203,5 +269,77 @@ func tokenGet(c *cli.Context) error {
 	}
 	fmt.Printf("export CLEURA_API_TOKEN=%v\nexport CLEURA_API_USERNAME=%v\nexport CLEURA_API_HOST=%v\n", client.Token, client.Auth.Username, c.String("api-host"))
 	return nil
+}
 
+func domainsList(c *cli.Context) error {
+
+	token := c.String("token")
+	username := c.String("username")
+	if token == "" {
+		return errors.New("error: token is not provided")
+	}
+	if username == "" {
+		return errors.New("error: username is not provided")
+	}
+	host := c.String("api-host")
+	client, err := cleura.NewClientNoPassword(&host, &username, &token)
+	if err != nil {
+		return err
+	}
+	domains, err := client.ListDomains()
+	if err != nil {
+		return err
+	}
+
+	t := table.NewWriter()
+	t.SetAutoIndex(true)
+	t.Style().Format.Header = text.FormatTitle
+	t.AppendHeader(table.Row{"Name", "Domain Id", "Regions"})
+	for _, domain := range *domains {
+		var regs string
+		for _, region := range domain.Area.Regions {
+			regs += fmt.Sprintf("%s:%s\n", region.Region, region.Status)
+		}
+		t.AppendRow(table.Row{fmt.Sprintf("%s(enabled:%s,status:%s)", domain.Name, strconv.FormatBool(domain.Enabled), domain.Status), domain.Id, regs})
+	}
+
+	fmt.Println(t.Render())
+	return nil
+
+}
+
+func projectsList(c *cli.Context) error {
+
+	token := c.String("token")
+	username := c.String("username")
+	domain_id := c.String("domain-id")
+	if token == "" {
+		return errors.New("error: token is not provided")
+	}
+	if username == "" {
+		return errors.New("error: username is not provided")
+	}
+	if domain_id == "" {
+		return errors.New("error: domain-id is not provided")
+	}
+	host := c.String("api-host")
+	client, err := cleura.NewClientNoPassword(&host, &username, &token)
+	if err != nil {
+		return err
+	}
+	projects, err := client.ListProjects(domain_id)
+	if err != nil {
+		return err
+	}
+
+	t := table.NewWriter()
+	t.SetAutoIndex(true)
+	t.Style().Format.Header = text.FormatTitle
+	t.AppendHeader(table.Row{"Name", "Project Id", "Status", "Domain Id", "Description"})
+	for _, project := range *projects {
+		t.AppendRow(table.Row{project.Name, project.Id, fmt.Sprintf("default:%s\nenabled:%s", strconv.FormatBool(project.Default), strconv.FormatBool(project.Enabled)), project.DomainId, project.Description})
+	}
+
+	fmt.Println(t.Render())
+	return nil
 }

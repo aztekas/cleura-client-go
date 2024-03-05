@@ -128,3 +128,37 @@ type HibernationSchedule struct {
 type WorkerGroupRequest struct {
 	Worker Worker `json:"worker"`
 }
+
+// Openstack
+
+// / Openstack domains
+type OpenstackDomain struct {
+	Area    OpenstackArea `json:"area"`
+	Id      string        `json:"id"`
+	Status  string        `json:"status"`
+	Name    string        `json:"name"`
+	Enabled bool          `json:"enabled"`
+}
+
+type OpenstackArea struct {
+	Name    string            `json:"name"`
+	Tag     string            `json:"tag"`
+	Regions []OpenstackRegion `json:"regions"`
+}
+
+type OpenstackRegion struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Region string `json:"region"`
+}
+
+/// Openstack projects
+
+type OpenstackProject struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	DomainId    string `json:"domain_id"`
+	Enabled     bool   `json:"enabled"`
+	Default     bool   `json:"default"`
+	Description string `json:"description"`
+}
