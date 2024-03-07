@@ -171,7 +171,8 @@ func main() {
 							Name:     "domain-id",
 							Required: true,
 							Aliases:  []string{"d"},
-							Usage:    "Openstack domain id. Try `cleura domains list` for the list of available domains",
+							Usage:    "Openstack domain id. Try \"cleura domain list\" for the list of available domains",
+							EnvVars:  []string{"CLEURA_API_DEFAULT_DOMAIN_ID"},
 						},
 					},
 				},
@@ -221,12 +222,14 @@ func main() {
 							Required: true,
 							Aliases:  []string{"r"},
 							Usage:    "Openstack cluster region. Try \"cleura domains list\" command for available regions in your domain",
+							EnvVars:  []string{"CLEURA_API_DEFAULT_REGION"},
 						},
 						&cli.StringFlag{
 							Name:     "project-id",
 							Required: true,
 							Aliases:  []string{"p"},
 							Usage:    "Openstack project id. Try \"cleura project list\" command for the list of available projects",
+							EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
 						},
 						&cli.Int64Flag{
 							Name:    "config-duration",
@@ -419,15 +422,6 @@ func getKubeconfig(c *cli.Context) error {
 	} else {
 		fmt.Println(configContent.(string))
 	}
-
-	return nil
-}
-
-func validateCredentials(c *cli.Context) error {
-	//TODO
-	// Check env variables
-	// Check rc file
-	// Check input flags
 
 	return nil
 }
