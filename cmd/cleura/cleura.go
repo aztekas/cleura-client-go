@@ -21,7 +21,7 @@ func main() {
 	app.Name = "Cleura API CLI"
 	app.Version = "v0.0.3"
 	app.Commands = []*cli.Command{
-		{
+				{
 			Name: "token",
 			Subcommands: []*cli.Command{
 				{
@@ -60,16 +60,18 @@ func main() {
 					Action: tokenRevoke,
 					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name:    "token",
-							Aliases: []string{"t"},
-							Usage:   "Token to revoke",
-							EnvVars: []string{"CLEURA_API_TOKEN"},
+							Name:     "token",
+							Aliases:  []string{"t"},
+							Usage:    "Token to revoke",
+							Required: true,
+							EnvVars:  []string{"CLEURA_API_TOKEN"},
 						},
 						&cli.StringFlag{
-							Name:    "username",
-							Aliases: []string{"u"},
-							Usage:   "Username token belongs to",
-							EnvVars: []string{"CLEURA_API_USERNAME"},
+							Name:     "username",
+							Aliases:  []string{"u"},
+							Usage:    "Username token belongs to",
+							Required: true,
+							EnvVars:  []string{"CLEURA_API_USERNAME"},
 						},
 						&cli.StringFlag{
 							Name:    "api-host",
@@ -88,16 +90,18 @@ func main() {
 					Action: tokenValidate,
 					Flags: []cli.Flag{
 						&cli.StringFlag{
-							Name:    "token",
-							Aliases: []string{"t"},
-							Usage:   "Token to validate",
-							EnvVars: []string{"CLEURA_API_TOKEN"},
+							Name:     "token",
+							Required: true,
+							Aliases:  []string{"t"},
+							Usage:    "Token to validate",
+							EnvVars:  []string{"CLEURA_API_TOKEN"},
 						},
 						&cli.StringFlag{
-							Name:    "username",
-							Aliases: []string{"u"},
-							Usage:   "Username token belongs to",
-							EnvVars: []string{"CLEURA_API_USERNAME"},
+							Name:     "username",
+							Required: true,
+							Aliases:  []string{"u"},
+							Usage:    "Username token belongs to",
+							EnvVars:  []string{"CLEURA_API_USERNAME"},
 						},
 						&cli.StringFlag{
 							Name:    "api-host",
@@ -257,6 +261,12 @@ func tokenValidate(c *cli.Context) error {
 	}
 	err = client.ValidateToken()
 	if err != nil {
+		re, ok := err.(*cleura.RequestAPIError)
+		if ok {
+			if re.StatusCode == 403 {
+				return fmt.Errorf("error: token is invalid")
+			}
+		}
 		return err
 	}
 	log.Println("token is valid")
@@ -279,6 +289,9 @@ func tokenRevoke(c *cli.Context) error {
 }
 func tokenPrint(c *cli.Context) error {
 	token := os.Getenv("CLEURA_API_TOKEN")
+	if token == "" {
+		return errors.New("error: token is not set")
+	}
 	fmt.Println(token)
 	return nil
 }
