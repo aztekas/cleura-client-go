@@ -6,6 +6,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "project",
 		Description: "Command used to perform operations with projects",
+		Usage:       "Command used to perform operations with projects",
 		Subcommands: []*cli.Command{
 			listCommand(),
 		},
