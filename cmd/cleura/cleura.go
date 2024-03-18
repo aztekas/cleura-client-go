@@ -29,8 +29,8 @@ func commands() []*cli.Command {
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "Cleura API CLI"
-	app.Description = "Cleura API CLI application to work with Cleura API"
+	app.Usage = "A Cleura API CLI"
+	app.Name = "cleura"
 	app.Version = version
 	app.Commands = commands()
 	err := app.Run(os.Args)
