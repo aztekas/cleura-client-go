@@ -16,8 +16,8 @@ func GetDefaultConfigPath() (string, error) {
 	return filepath.Join(homedir, ".config", "cleura", "config"), nil
 }
 
-// Choose path for the configuration file. Choose `--path PATH` if supplied
-// otherwise set default user directory
+// Choose path for the configuration file. Choose path` if supplied
+// otherwise set path within default user directory
 func ChoosePath(path string) (string, error) {
 	var err error
 	if path == "" {

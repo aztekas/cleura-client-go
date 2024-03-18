@@ -142,11 +142,12 @@ func TrySetConfigFromFile(c *cli.Context) error {
 func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "config",
-		Description: "Command used for preparing cleura cli credentials and setting default parameter values",
+		Description: "Command used for working with configuration file for the cleura cli",
 		Subcommands: []*cli.Command{
 			setCommand(),
 			listCommand(),
 			showActiveCommand(),
+			generateConfigTemplateCommand(),
 		},
 	}
 }
