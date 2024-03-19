@@ -84,6 +84,28 @@ func (c *Config) PrintConfigurations() {
 		fmt.Printf("no configurations found in configuration file: %s\n", c.location)
 	}
 }
+func (c *Config) PrintConfigurationContent(name string) error {
+	_, ok := c.Configurations[name]
+	if !ok {
+		return fmt.Errorf("error: configuration name: %s not found in configuration file %s", name, c.location)
+	}
+	configurationMap, err := utils.ToMap(c.Configurations[name], "yaml")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Configuration name: `%s` (%s)\n\n", name, c.location)
+	for _, key := range maps.Keys(configurationMap) {
+		if key == "token" {
+			if configurationMap[key] != "" {
+				fmt.Printf("%-10s: ****hidden****\n", "token")
+			}
+		} else {
+			fmt.Printf("%-10s: %s\n", key, configurationMap[key])
+		}
+
+	}
+	return nil
+}
 
 func LoadConfiguration(path string) (*Config, error) {
 	var config Config
@@ -150,6 +172,7 @@ func Command() *cli.Command {
 			listCommand(),
 			showActiveCommand(),
 			generateConfigTemplateCommand(),
+			showCommand(),
 		},
 	}
 }
