@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/urfave/cli/v2"
 )
 
 // Return default location within user home directory ($HOME/.config/cleura/config)
@@ -53,4 +55,13 @@ func ToMap(in interface{}, tag string) (map[string]interface{}, error) {
 		}
 	}
 	return out, nil
+}
+
+func ValidateNotEmpty(ctx *cli.Context, flags ...string) error {
+	for _, flag := range flags {
+		if ctx.String(flag) == "" {
+			return fmt.Errorf("error: required flag: `%s` is not set or empty", flag)
+		}
+	}
+	return nil
 }

@@ -110,8 +110,8 @@ func TrySetConfigFromFile(c *cli.Context) error {
 	var config *Config
 	//ignore api-host as it always has default value
 	//ignore path as it always has default value (%HOME/.config/cleura/config)
-	var ignoreFlags = []string{"help", "api-host", "path"}
-	config, err := LoadConfiguration(c.String("path"))
+	var ignoreFlags = []string{"help"}
+	config, err := LoadConfiguration(c.String("config-path"))
 	if err != nil {
 		fmt.Printf("Failed to read configuration file: %s, proceed with explicit configuration via flags and environment variables\n", err)
 		return nil
@@ -131,7 +131,8 @@ func TrySetConfigFromFile(c *cli.Context) error {
 	for _, flag := range c.Command.Flags {
 		ok := c.IsSet(flag.Names()[0])
 		// Only set flags that are not already set directly of via environment variables
-		if !ok && !slices.Contains(ignoreFlags, flag.Names()[0]) {
+		_, inConfig := configFromFile[flag.Names()[0]]
+		if !ok && !slices.Contains(ignoreFlags, flag.Names()[0]) && inConfig {
 			c.Set(flag.Names()[0], configFromFile[flag.Names()[0]].(string))
 		}
 	}
@@ -143,7 +144,7 @@ func Command() *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Description: "Command used for working with configuration file for the cleura cli",
-		Usage: "Command used for working with configuration file for the cleura cli",
+		Usage:       "Command used for working with configuration file for the cleura cli",
 		Subcommands: []*cli.Command{
 			setCommand(),
 			listCommand(),

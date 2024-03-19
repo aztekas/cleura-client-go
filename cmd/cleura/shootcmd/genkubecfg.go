@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
@@ -13,7 +14,8 @@ func genKubeConfigCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "generate-kubeconfig",
 		Description: "Get and save kubeconfig for selected shoot cluster",
-		Usage: "Get and save kubeconfig for selected shoot cluster. NB: overwrites existing kubeconfig" ,
+		Usage:       "Get and save kubeconfig for selected shoot cluster. NB: overwrites existing kubeconfig",
+		Before:      configcmd.TrySetConfigFromFile,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "output-path",
@@ -48,11 +50,10 @@ func genKubeConfigCommand() *cli.Command {
 				Usage:    "Shoot cluster name",
 			},
 			&cli.StringFlag{
-				Name:     "cluster-region",
-				Required: true,
-				Aliases:  []string{"r"},
-				Usage:    "Openstack cluster region. Try \"cleura domains list\" command for available regions in your domain",
-				EnvVars:  []string{"CLEURA_API_DEFAULT_REGION"},
+				Name:    "region",
+				Aliases: []string{"r"},
+				Usage:   "Openstack region. Try \"cleura domains list\" command for available regions in your domain",
+				EnvVars: []string{"CLEURA_API_DEFAULT_REGION"},
 			},
 			&cli.StringFlag{
 				Name:     "project-id",
@@ -73,7 +74,7 @@ func genKubeConfigCommand() *cli.Command {
 			username := ctx.String("username")
 			host := ctx.String("api-host")
 			clusterName := ctx.String("cluster-name")
-			clusterRegion := ctx.String("cluster-region")
+			clusterRegion := ctx.String("region")
 			clusterProjectId := ctx.String("project-id")
 			configDuration := ctx.Int64("config-duration")
 			outputPath := ctx.String("output-path")

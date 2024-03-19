@@ -38,7 +38,7 @@ func listCommand() *cli.Command {
 				EnvVars: []string{"CLEURA_API_HOST"},
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    "config-path",
 				Aliases: []string{"p"},
 				Usage:   "Path to configuration file. $HOME/.config/cleura/config if not set",
 			},

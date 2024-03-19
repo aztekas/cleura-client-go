@@ -9,14 +9,14 @@ func listCommand() *cli.Command {
 		Usage: "List available configurations defined in configuration file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    "config-path",
 				Aliases: []string{"p"},
 				Usage:   "Path to configuration file. $HOME/.config/cleura/config if not set",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
 			var config *Config
-			config, err := LoadConfiguration(ctx.String("path"))
+			config, err := LoadConfiguration(ctx.String("config-path"))
 			if err != nil {
 				return err
 			}

@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
+	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -14,7 +15,7 @@ import (
 func listCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "list",
-		Usage: "List projects in the defined domain",
+		Usage:  "List projects in the defined domain",
 		Before: configcmd.TrySetConfigFromFile,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -43,24 +44,30 @@ func listCommand() *cli.Command {
 				EnvVars: []string{"CLEURA_API_DEFAULT_DOMAIN_ID"},
 			},
 			&cli.StringFlag{
-				Name:    "path",
+				Name:    "config-path",
 				Aliases: []string{"p"},
 				Usage:   "Path to configuration file. $HOME/.config/cleura/config if not set",
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			err := utils.ValidateNotEmpty(ctx,
+				"token",
+				"username",
+				"api-host",
+				"domain-id",
+			)
+			if err != nil {
+				return err
+			}
 			token := ctx.String("token")
 			username := ctx.String("username")
-			domain_id := ctx.String("domain-id")
 			host := ctx.String("api-host")
-			if token == "" || username == "" || domain_id == "" {
-				return fmt.Errorf("error: all of token, username, domain-id must be set")
-			}
+
 			client, err := cleura.NewClientNoPassword(&host, &username, &token)
 			if err != nil {
 				return err
 			}
-			projects, err := client.ListProjects(domain_id)
+			projects, err := client.ListProjects(ctx.String("domain-id"))
 			if err != nil {
 				re, ok := err.(*cleura.RequestAPIError)
 				if ok {

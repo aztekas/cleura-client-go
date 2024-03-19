@@ -50,7 +50,7 @@ func getCommand() *cli.Command {
 				HasBeenSet: true,
 			},
 			&cli.StringFlag{
-				Name:  "path",
+				Name:  "config-path",
 				Usage: "Path to configuration file. $HOME/.config/cleura/config if not set",
 			},
 			//Add interactive mode
@@ -95,7 +95,7 @@ func getCommand() *cli.Command {
 				return err
 			}
 			if ctx.Bool("update-config") {
-				config, err := configcmd.LoadConfiguration(ctx.String("path"))
+				config, err := configcmd.LoadConfiguration(ctx.String("config-path"))
 				if err != nil {
 					return err
 				}
