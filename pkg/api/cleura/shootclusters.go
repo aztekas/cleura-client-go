@@ -27,6 +27,25 @@ func (c *Client) GetShootCluster(clusterName string, clusterRegion string, clust
 	return &shoot, nil
 }
 
+func (c *Client) ListShootClusters(clusterRegion string, clusterProject string) ([]ShootClusterResponse, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/gardener/v1/public/shoot/%s/%s", c.HostURL, clusterRegion, clusterProject), nil)
+	//https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project
+	if err != nil {
+		return nil, err
+	}
+
+	body, err := c.doRequest(req, 200)
+	if err != nil {
+		return nil, err
+	}
+	shoots := []ShootClusterResponse{}
+	err = json.Unmarshal(body, &shoots)
+	if err != nil {
+		return nil, err
+	}
+	return shoots, nil
+}
+
 func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string, shootClusterRequest ShootClusterRequest) (*ShootClusterResponse, error) {
 	//https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project
 	crJsonByte, err := json.Marshal(shootClusterRequest)
