@@ -2,6 +2,7 @@ package configcmd
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/urfave/cli/v2"
@@ -32,6 +33,10 @@ func generateConfigTemplateCommand() *cli.Command {
 				return err
 			}
 			path, err := utils.ChoosePath(ctx.String("output-file"))
+			if err != nil {
+				return err
+			}
+			err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
 			if err != nil {
 				return err
 			}

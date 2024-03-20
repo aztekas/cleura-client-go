@@ -25,16 +25,9 @@ func showCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			if ctx.String("name") == "" {
-				err := config.PrintConfigurationContent(config.ActiveConfig)
-				if err != nil {
-					return err
-				}
-			} else {
-				err := config.PrintConfigurationContent(ctx.String("name"))
-				if err != nil {
-					return err
-				}
+			err = config.PrintConfigurationContent(ctx.String("name"))
+			if err != nil {
+				return err
 			}
 			return nil
 		},
