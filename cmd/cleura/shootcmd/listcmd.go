@@ -89,12 +89,11 @@ func listCommand() *cli.Command {
 					return err
 				}
 				fmt.Println(string(raw))
-
 			} else {
 				t := table.NewWriter()
 				t.SetAutoIndex(true)
 				t.Style().Format.Header = text.FormatTitle
-				t.AppendHeader(table.Row{"Cluster name", "Version", "Workers", "Hibernated?", "Status", "Last operation"})
+				t.AppendHeader(table.Row{"Cluster name", "Kubernetes\nVersion", "Workers", "Hibernated?", "Status", "Last operation"})
 				for _, cluster := range clusterList {
 					var statuses string
 					for _, condition := range cluster.Status.Conditions {
@@ -109,11 +108,8 @@ func listCommand() *cli.Command {
 				}
 				fmt.Printf("Shoot clusters in:\n- Project: %s\n- Region: %s\n", ctx.String("project-id"), ctx.String("region"))
 				fmt.Println(t.Render())
-
 			}
-
 			return nil
-
 		},
 	}
 }

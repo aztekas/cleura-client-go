@@ -10,6 +10,8 @@ func Command() *cli.Command {
 		Subcommands: []*cli.Command{
 			genKubeConfigCommand(),
 			listCommand(),
+			createCommand(),
+			deleteCommand(),
 		},
 	}
 }
