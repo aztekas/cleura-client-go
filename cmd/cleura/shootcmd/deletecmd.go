@@ -122,6 +122,12 @@ func deleteCommand() *cli.Command {
 			if ctx.Bool("cluster") {
 				_, err := client.DeleteShootCluster(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"))
 				if err != nil {
+					re, ok := err.(*cleura.RequestAPIError)
+					if ok {
+						if re.StatusCode == 403 {
+							return fmt.Errorf("error: invalid token")
+						}
+					}
 					return err
 				}
 				fmt.Printf("Cluster: `%s` is being deleted.\nPlease check operation status with `cleura shoot list` command\n", ctx.String("cluster-name"))

@@ -188,6 +188,12 @@ func createCommand() *cli.Command {
 				clusterReq := generateShootClusterRequest(ctx)
 				_, err := client.CreateShootCluster(ctx.String("region"), ctx.String("project-id"), clusterReq)
 				if err != nil {
+					re, ok := err.(*cleura.RequestAPIError)
+					if ok {
+						if re.StatusCode == 403 {
+							return fmt.Errorf("error: invalid token")
+						}
+					}
 					return err
 				}
 				fmt.Printf("Cluster: `%s` is being created.\nPlease check status with `cleura shoot list` command\n", ctx.String("cluster-name"))

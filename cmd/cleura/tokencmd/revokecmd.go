@@ -1,6 +1,7 @@
 package tokencmd
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
@@ -50,6 +51,12 @@ func revokeCommand() *cli.Command {
 			}
 			err = client.RevokeToken()
 			if err != nil {
+				re, ok := err.(*cleura.RequestAPIError)
+				if ok {
+					if re.StatusCode == 403 {
+						return fmt.Errorf("error: invalid token")
+					}
+				}
 				return err
 			}
 			log.Println("token successfully revoked")

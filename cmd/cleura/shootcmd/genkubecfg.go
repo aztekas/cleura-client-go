@@ -93,6 +93,12 @@ func genKubeConfigCommand() *cli.Command {
 				ctx.Int64("config-duration"),
 			)
 			if err != nil {
+				re, ok := err.(*cleura.RequestAPIError)
+				if ok {
+					if re.StatusCode == 403 {
+						return fmt.Errorf("error: invalid token")
+					}
+				}
 				return err
 			}
 			var configContent interface{}

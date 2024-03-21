@@ -81,6 +81,12 @@ func listCommand() *cli.Command {
 			}
 			clusterList, err := client.ListShootClusters(ctx.String("region"), ctx.String("project-id"))
 			if err != nil {
+				re, ok := err.(*cleura.RequestAPIError)
+				if ok {
+					if re.StatusCode == 403 {
+						return fmt.Errorf("error: invalid token")
+					}
+				}
 				return err
 			}
 			if ctx.Bool("raw") {
