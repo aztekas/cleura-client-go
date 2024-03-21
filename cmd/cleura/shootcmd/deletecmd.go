@@ -15,7 +15,8 @@ func deleteCommand() *cli.Command {
 		Description: "Delete a whole cluster or a workgroup in specified cluster",
 		Usage:       "Delete a whole cluster or a workgroup in specified cluster",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags: []cli.Flag{
+		Flags: append(
+			utils.CommonFlags(),
 			&cli.StringFlag{
 				Name:     "region",
 				Category: "Location settings",
@@ -29,33 +30,6 @@ func deleteCommand() *cli.Command {
 				Usage:    "Specify Cleura project to list shoot clusters in",
 				Aliases:  []string{"project"},
 				EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
-			},
-			&cli.StringFlag{
-				Name:     "username",
-				Category: "Connection settings",
-				Aliases:  []string{"u"},
-				Usage:    "Username token belongs to",
-				EnvVars:  []string{"CLEURA_API_USERNAME"},
-			},
-			&cli.StringFlag{
-				Name:     "token",
-				Category: "Connection settings",
-				Aliases:  []string{"t"},
-				Usage:    "Token to validate",
-				EnvVars:  []string{"CLEURA_API_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:     "api-host",
-				Category: "Connection settings",
-				Aliases:  []string{"host"},
-				Usage:    "Cleura API host",
-				Value:    "https://rest.cleura.cloud",
-				EnvVars:  []string{"CLEURA_API_HOST"},
-			},
-			&cli.StringFlag{
-				Name:    "config-path",
-				Aliases: []string{"p"},
-				Usage:   "Path to a configuration file. $HOME/.config/cleura/config if not set",
 			},
 			&cli.BoolFlag{
 				Name:  "cluster",
@@ -97,7 +71,7 @@ func deleteCommand() *cli.Command {
 					return nil
 				},
 			},
-		},
+		),
 		Action: func(ctx *cli.Context) error {
 			err := utils.ValidateNotEmpty(ctx,
 				"token",

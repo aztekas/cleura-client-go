@@ -18,7 +18,8 @@ func listCommand() *cli.Command {
 		Description: "List shoot clusters in a given project and region",
 		Usage:       "List shoot clusters in a given project and region",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags: []cli.Flag{
+		Flags: append(
+			utils.CommonFlags(),
 			&cli.StringFlag{
 				Name:    "region",
 				Aliases: []string{"r"},
@@ -31,35 +32,11 @@ func listCommand() *cli.Command {
 				Aliases: []string{"project"},
 				EnvVars: []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
 			},
-			&cli.StringFlag{
-				Name:    "username",
-				Aliases: []string{"u"},
-				Usage:   "Username token belongs to",
-				EnvVars: []string{"CLEURA_API_USERNAME"},
-			},
-			&cli.StringFlag{
-				Name:    "token",
-				Aliases: []string{"t"},
-				Usage:   "Token to validate",
-				EnvVars: []string{"CLEURA_API_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:    "api-host",
-				Aliases: []string{"host"},
-				Usage:   "Cleura API host",
-				Value:   "https://rest.cleura.cloud",
-				EnvVars: []string{"CLEURA_API_HOST"},
-			},
-			&cli.StringFlag{
-				Name:    "config-path",
-				Aliases: []string{"p"},
-				Usage:   "Path to configuration file. $HOME/.config/cleura/config if not set",
-			},
 			&cli.BoolFlag{
 				Name:  "raw",
 				Usage: "Output in raw json",
 			},
-		},
+		),
 		Action: func(ctx *cli.Context) error {
 			err := utils.ValidateNotEmpty(ctx,
 				"token",

@@ -105,7 +105,7 @@ func (c *Config) PrintConfigurationContent(name string) error {
 	for _, key := range maps.Keys(configurationMap) {
 		if key == "token" && configurationMap[key] != "" {
 			fmt.Printf("%-10s: ****hidden****\n", "token")
-			}else {
+		} else {
 			fmt.Printf("%-10s: %s\n", key, configurationMap[key])
 		}
 
@@ -113,6 +113,7 @@ func (c *Config) PrintConfigurationContent(name string) error {
 	return nil
 }
 
+// Loads configuration settings from specified file path
 func LoadConfiguration(path string) (*Config, error) {
 	var config Config
 	path, err := utils.ChoosePath(path)
@@ -123,7 +124,7 @@ func LoadConfiguration(path string) (*Config, error) {
 	viper.SetConfigType("yaml")
 	err = viper.ReadInConfig() // Find and read the config file
 	if err != nil {            // Handle errors reading the config file
-		return nil, fmt.Errorf("loadConfiguration: error reading config file: %w", err)
+		return nil, fmt.Errorf("LoadConfiguration: error reading config file: %w", err)
 	}
 	err = viper.Unmarshal(&config)
 	if err != nil {

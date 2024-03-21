@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
+	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -17,32 +18,7 @@ func listCommand() *cli.Command {
 		Description: "List available domains",
 		Usage:       "List domains available to current user",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    "token",
-				Aliases: []string{"t"},
-				Usage:   "Token to validate",
-				EnvVars: []string{"CLEURA_API_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:    "username",
-				Aliases: []string{"u"},
-				Usage:   "Username token belongs to",
-				EnvVars: []string{"CLEURA_API_USERNAME"},
-			},
-			&cli.StringFlag{
-				Name:    "api-host",
-				Aliases: []string{"host"},
-				Usage:   "Cleura API host",
-				Value:   "https://rest.cleura.cloud",
-				EnvVars: []string{"CLEURA_API_HOST"},
-			},
-			&cli.StringFlag{
-				Name:    "config-path",
-				Aliases: []string{"p"},
-				Usage:   "Path to configuration file. $HOME/.config/cleura/config if not set",
-			},
-		},
+		Flags:       utils.CommonFlags(),
 		Action: func(ctx *cli.Context) error {
 			token := ctx.String("token")
 			username := ctx.String("username")

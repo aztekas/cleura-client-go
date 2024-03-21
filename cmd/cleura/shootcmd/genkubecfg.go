@@ -17,30 +17,12 @@ func genKubeConfigCommand() *cli.Command {
 		Description: "Get and save kubeconfig for selected shoot cluster",
 		Usage:       "Get and save kubeconfig for selected shoot cluster. NB: overwrites existing kubeconfig",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags: []cli.Flag{
+		Flags: append(
+			utils.CommonFlags(),
 			&cli.StringFlag{
 				Name:    "output-path",
 				Aliases: []string{"o"},
 				Usage:   "Specify path with filename to store kubeconfig. Print to stdout if not set",
-			},
-			&cli.StringFlag{
-				Name:    "username",
-				Aliases: []string{"u"},
-				Usage:   "Username token belongs to",
-				EnvVars: []string{"CLEURA_API_USERNAME"},
-			},
-			&cli.StringFlag{
-				Name:    "token",
-				Aliases: []string{"t"},
-				Usage:   "Token to validate",
-				EnvVars: []string{"CLEURA_API_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:    "api-host",
-				Aliases: []string{"host"},
-				Usage:   "Cleura API host",
-				Value:   "https://rest.cleura.cloud",
-				EnvVars: []string{"CLEURA_API_HOST"},
 			},
 			&cli.StringFlag{
 				Name:     "cluster-name",
@@ -66,7 +48,7 @@ func genKubeConfigCommand() *cli.Command {
 				Usage:   "How long will the generated kubeconfig be valid in seconds. Defaults to 1 day (86400 seconds)",
 				Value:   86400,
 			},
-		},
+		),
 		Action: func(ctx *cli.Context) error {
 			err := utils.ValidateNotEmpty(ctx,
 				"token",
