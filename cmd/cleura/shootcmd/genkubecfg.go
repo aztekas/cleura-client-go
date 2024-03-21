@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
+	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
@@ -20,21 +21,19 @@ func genKubeConfigCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:    "output-path",
 				Aliases: []string{"o"},
-				Usage:   "Specify path with filename to store kubeconfig",
+				Usage:   "Specify path with filename to store kubeconfig. Print to stdout if not set",
 			},
 			&cli.StringFlag{
-				Name:     "username",
-				Required: true,
-				Aliases:  []string{"u"},
-				Usage:    "Username token belongs to",
-				EnvVars:  []string{"CLEURA_API_USERNAME"},
+				Name:    "username",
+				Aliases: []string{"u"},
+				Usage:   "Username token belongs to",
+				EnvVars: []string{"CLEURA_API_USERNAME"},
 			},
 			&cli.StringFlag{
-				Name:     "token",
-				Required: true,
-				Aliases:  []string{"t"},
-				Usage:    "Token to validate",
-				EnvVars:  []string{"CLEURA_API_TOKEN"},
+				Name:    "token",
+				Aliases: []string{"t"},
+				Usage:   "Token to validate",
+				EnvVars: []string{"CLEURA_API_TOKEN"},
 			},
 			&cli.StringFlag{
 				Name:    "api-host",
@@ -56,11 +55,10 @@ func genKubeConfigCommand() *cli.Command {
 				EnvVars: []string{"CLEURA_API_DEFAULT_REGION"},
 			},
 			&cli.StringFlag{
-				Name:     "project-id",
-				Required: true,
-				Aliases:  []string{"p"},
-				Usage:    "Openstack project id. Try \"cleura project list\" command for the list of available projects",
-				EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
+				Name:    "project-id",
+				Aliases: []string{"p"},
+				Usage:   "Openstack project id. Try \"cleura project list\" command for the list of available projects",
+				EnvVars: []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
 			},
 			&cli.Int64Flag{
 				Name:    "config-duration",
@@ -70,19 +68,30 @@ func genKubeConfigCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
+			err := utils.ValidateNotEmpty(ctx,
+				"token",
+				"username",
+				"api-host",
+				"region",
+				"project-id",
+			)
+			if err != nil {
+				return err
+			}
 			token := ctx.String("token")
 			username := ctx.String("username")
 			host := ctx.String("api-host")
-			clusterName := ctx.String("cluster-name")
-			clusterRegion := ctx.String("region")
-			clusterProjectId := ctx.String("project-id")
-			configDuration := ctx.Int64("config-duration")
-			outputPath := ctx.String("output-path")
+
 			client, err := cleura.NewClientNoPassword(&host, &username, &token)
 			if err != nil {
 				return err
 			}
-			body, err := client.GenerateKubeConfig(clusterRegion, clusterProjectId, clusterName, configDuration)
+			body, err := client.GenerateKubeConfig(
+				ctx.String("region"),
+				ctx.String("project-id"),
+				ctx.String("cluster-name"),
+				ctx.Int64("config-duration"),
+			)
 			if err != nil {
 				return err
 			}
@@ -91,8 +100,8 @@ func genKubeConfigCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			if outputPath != "" {
-				f, err := os.OpenFile(outputPath, os.O_RDWR|os.O_CREATE, 0600)
+			if ctx.String("output-path") != "" {
+				f, err := os.OpenFile(ctx.String("output-path"), os.O_RDWR|os.O_CREATE, 0600)
 				if err != nil {
 					return err
 				}
