@@ -5,27 +5,28 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"syscall"
 
 	"github.com/urfave/cli/v2"
+	"golang.org/x/term"
 )
 
 // Return default location within user home directory ($HOME/.config/cleura/config)
-func GetDefaultConfigPath() (string, error) {
+func GetDefaultConfigPath() string {
 	homedir, err := os.UserHomeDir()
 	if err != nil {
-		return "", err
+		return ""
 	}
-	return filepath.Join(homedir, ".config", "cleura", "config"), nil
+	return filepath.Join(homedir, ".config", "cleura", "config")
 }
 
 // Choose path for the configuration file. Choose path` if supplied
 // otherwise set path within default user directory
 func ChoosePath(path string) (string, error) {
-	var err error
 	if path == "" {
-		path, err = GetDefaultConfigPath()
-		if err != nil {
-			return "", fmt.Errorf("error: setting default path failed: %w", err)
+		path = GetDefaultConfigPath()
+		if path == "" {
+			return "", fmt.Errorf("error: setting default path failed")
 		}
 	}
 	return path, nil
@@ -64,4 +65,18 @@ func ValidateNotEmptyString(ctx *cli.Context, flags ...string) error {
 		}
 	}
 	return nil
+}
+
+func GetUserInput(asking string, masked bool) (userInput string, err error) {
+	fmt.Printf("Enter %s: ", asking)
+	if masked {
+		secretInput, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return "", err
+		}
+		return string(secretInput), nil
+	}
+	var input string
+	fmt.Scanln(&input)
+	return input, nil
 }

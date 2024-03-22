@@ -1,14 +1,12 @@
 package tokencmd
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
+	"strconv"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
+	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
@@ -17,7 +15,7 @@ func getCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "get",
 		Description: "Receive token from Cleura API using username and password",
-		Usage: "Receive token from Cleura API using username and password",
+		Usage:       "Receive token from Cleura API using username and password",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "username",
@@ -28,13 +26,8 @@ func getCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:    "password",
 				Aliases: []string{"p"},
-				Usage:   "Password for token request",
+				Usage:   "Password for token request.",
 				EnvVars: []string{"CLEURA_API_PASSWORD"},
-			},
-			&cli.StringFlag{
-				Name:    "credentials-file",
-				Aliases: []string{"c"},
-				Usage:   "Path to credentials json file",
 			},
 			&cli.StringFlag{
 				Name:    "api-host",
@@ -53,46 +46,72 @@ func getCommand() *cli.Command {
 				Name:  "config-path",
 				Usage: "Path to configuration file. $HOME/.config/cleura/config if not set",
 			},
-			//Add interactive mode
-			//Add two factor mode
+			&cli.BoolFlag{
+				Name:    "interactive",
+				Usage:   "Interactive mode. Input username and password in interactive mode",
+				Aliases: []string{"i"},
+				Action: func(ctx *cli.Context, b bool) error {
+					if ctx.String("username") != "" || ctx.String("password") != "" {
+						return fmt.Errorf("error: --username (-u)/--password (-p) flags and CLEURA_API_PASSWORD/CLEURA_API_USERNAME environmental variables not supported in interactive mode")
+					}
+					return nil
+				},
+			},
+			&cli.BoolFlag{
+				Name:    "two-factor",
+				Usage:   "Set this flag if two-factor authentication (sms) is enabled in your cleura profile ",
+				Aliases: []string{"2fa"},
+				Value:   false,
+			},
 		},
 		Action: func(ctx *cli.Context) error {
-			var host, username, password string
-			if ctx.String("credentials-file") != "" {
-				p := ctx.String("credentials-file")
-				credentials := struct {
-					Username string `json:"username"`
-					Password string `json:"password"`
-				}{}
-				file, err := os.Open(filepath.Join(p))
-				if err != nil {
-					return err
-				}
-				defer file.Close()
-				jsonByte, err := io.ReadAll(file)
-				if err != nil {
-					return err
-				}
-				err = json.Unmarshal(jsonByte, &credentials)
-				if err != nil {
-					return err
-				}
-				username = credentials.Username
-				password = credentials.Password
 
+			var host, username, password string
+			var client *cleura.Client
+			var err error
+			if ctx.Bool("interactive") {
+				username, err = utils.GetUserInput("username", false)
+				if err != nil {
+					return err
+				}
+				password, err = utils.GetUserInput("password", true)
+				if err != nil {
+					return err
+				}
 			} else {
 				username = ctx.String("username")
 				password = ctx.String("password")
 			}
-			//Add option to supply u&p via console
+
+			//Validate not empty
 			if username == "" || password == "" {
 				return errors.New("error: password and username must be supplied")
 			}
 			host = ctx.String("api-host")
 
-			client, err := cleura.NewClient(&host, &username, &password)
-			if err != nil {
-				return err
+			//Handle two-factor authentication
+			if ctx.Bool("two-factor") {
+				client, err = cleura.NewClient(&host, &username, &password, true)
+				if err != nil {
+					return err
+				}
+				input, err := utils.GetUserInput("SMS Code:", false)
+				if err != nil {
+					return err
+				}
+				twoFaCode, err := strconv.Atoi(input)
+				if err != nil {
+					return err
+				}
+				err = client.GetTokenWith2FA(twoFaCode)
+				if err != nil {
+					return err
+				}
+			} else {
+				client, err = cleura.NewClient(&host, &username, &password, false)
+				if err != nil {
+					return err
+				}
 			}
 			if ctx.Bool("update-config") {
 				config, err := configcmd.LoadConfiguration(ctx.String("config-path"))
@@ -103,9 +122,9 @@ func getCommand() *cli.Command {
 				if err != nil {
 					return err
 				}
-				fmt.Println("Token is updated")
+				fmt.Println("\nToken is updated")
 			}
-			fmt.Printf("export CLEURA_API_TOKEN=%v\nexport CLEURA_API_USERNAME=%v\nexport CLEURA_API_HOST=%v\n", client.Token, client.Auth.Username, ctx.String("api-host"))
+			fmt.Printf("\nexport CLEURA_API_TOKEN=%v\nexport CLEURA_API_USERNAME=%v\nexport CLEURA_API_HOST=%v\n", client.Token, client.Auth.Username, ctx.String("api-host"))
 			return nil
 
 		},

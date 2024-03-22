@@ -28,11 +28,17 @@ type Client struct {
 	Auth       AuthStruct
 }
 
-// AuthStruct -
+// AuthStruct Wrapper
+type AuthStructWrapper struct {
+	Auth AuthStruct `json:"auth"`
+}
 
+// AuthStruct -
 type AuthStruct struct {
-	Username string `json:"login"`
-	Password string `json:"password"`
+	Username         string `json:"login"`
+	Password         string `json:"password"`
+	TwoFactorMethod  string `json:"twofa_method,omitempty"`
+	VerificationCode string `json:"verification,omitempty"`
 }
 
 // AuthResponse -
@@ -41,35 +47,62 @@ type AuthResponse struct {
 	Token  string `json:"token"`
 }
 
+// AuthVerificationResult
+type AuthVerificationResult struct {
+	Result       string `json:"result"`
+	Type         string `json:"type"`
+	Verification string `json:"verification"`
+}
+
+type AuthRequestTwoFactor struct {
+	Request2FA AuthRequestTwoFactorDetails `json:"request2fa"`
+}
+type AuthRequestTwoFactorDetails struct {
+	Login        string `json:"login"`
+	Verification string `json:"verification"`
+}
+
+type AuthVerifyTwoFactor struct {
+	Verify2FA AuthVerifyTwoFactorDetails `json:"verify2fa"`
+}
+type AuthVerifyTwoFactorDetails struct {
+	Login        string `json:"login"`
+	Verification string `json:"verification"`
+	Code         int    `json:"code"`
+}
+
 // NewClient -
-func NewClient(host, username, password *string) (*Client, error) {
+func NewClient(host, username, password *string, twoFactorAuthEnabled bool) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 600 * time.Second},
 		// Default API URL
 		HostURL: HostURL,
 	}
-
 	if host != nil {
 		c.HostURL = *host
 	}
-
 	// If username or password not provided, return empty client
 	if username == nil || password == nil {
 		return &c, nil
 	}
-
 	c.Auth = AuthStruct{
 		Username: *username,
 		Password: *password,
 	}
-
+	// Return client without token if two factor is enabled
+	if twoFactorAuthEnabled {
+		c.Auth.TwoFactorMethod = "sms"
+		err := c.Request2FactorCode()
+		if err != nil {
+			return nil, err
+		}
+		return &c, nil
+	}
 	ar, err := c.GetToken()
 	if err != nil {
 		return nil, err
 	}
-
 	c.Token = ar.Token
-
 	return &c, nil
 }
 
@@ -79,11 +112,9 @@ func NewClientNoPassword(host, username, token *string) (*Client, error) {
 		// Default API URL
 		HostURL: HostURL,
 	}
-
 	if host != nil {
 		c.HostURL = *host
 	}
-
 	// If username or password not provided, return empty client
 	if username == nil || token == nil {
 		return &c, nil
@@ -91,28 +122,23 @@ func NewClientNoPassword(host, username, token *string) (*Client, error) {
 	c.Auth = AuthStruct{
 		Username: *username,
 	}
-
 	c.Token = *token
 	return &c, nil
 }
 
 func (c *Client) doRequest(req *http.Request, successResponse int) ([]byte, error) {
 	token := c.Token
-
 	req.Header.Set("X-AUTH-LOGIN", c.Auth.Username)
 	req.Header.Set("X-AUTH-TOKEN", token)
-
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
-
 	if res.StatusCode != successResponse {
 		rErr := RequestAPIError{
 			Err:        fmt.Errorf("actual_status: %d, expected_status: %d, body: %s", res.StatusCode, successResponse, body),
@@ -120,6 +146,5 @@ func (c *Client) doRequest(req *http.Request, successResponse int) ([]byte, erro
 		}
 		return nil, &rErr
 	}
-
 	return body, nil
 }

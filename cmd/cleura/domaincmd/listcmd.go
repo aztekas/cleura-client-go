@@ -20,6 +20,14 @@ func listCommand() *cli.Command {
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags:       utils.CommonFlags(),
 		Action: func(ctx *cli.Context) error {
+			err := utils.ValidateNotEmptyString(ctx,
+				"token",
+				"username",
+				"api-host",
+			)
+			if err != nil {
+				return err
+			}
 			token := ctx.String("token")
 			username := ctx.String("username")
 			host := ctx.String("api-host")
