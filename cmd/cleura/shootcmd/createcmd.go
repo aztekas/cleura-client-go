@@ -138,7 +138,7 @@ func createCommand() *cli.Command {
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmpty(ctx,
+			err := utils.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",

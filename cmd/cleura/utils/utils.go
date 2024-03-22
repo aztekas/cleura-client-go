@@ -57,7 +57,7 @@ func ToMap(in interface{}, tag string) (map[string]interface{}, error) {
 	return out, nil
 }
 
-func ValidateNotEmpty(ctx *cli.Context, flags ...string) error {
+func ValidateNotEmptyString(ctx *cli.Context, flags ...string) error {
 	for _, flag := range flags {
 		if ctx.String(flag) == "" {
 			return fmt.Errorf("error: required flag: `%s` is not set or empty", flag)
