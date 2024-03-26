@@ -1,6 +1,6 @@
 package cleura
 
-// Shoot cluster response data model
+// Shoot cluster response data model.
 type ShootClusterResponse struct {
 	Metadata MetadataFields `json:"metadata"`
 	Spec     SpecFields     `json:"spec"`
@@ -59,8 +59,7 @@ type AdvertisedAddress struct {
 	Url  string `json:"url"`
 }
 
-// Shoot cluster request data model
-
+// Shoot cluster request data model.
 type ShootClusterRequest struct {
 	Shoot ShootClusterRequestConfig `json:"shoot"`
 }
@@ -91,7 +90,7 @@ type WorkerNetwork struct {
 }
 */
 
-// Provider.Workers.Worker
+// Worker.
 type Worker struct {
 	Name     string         `json:"name,omitempty"`
 	Minimum  int16          `json:"minimum,omitempty"`
@@ -129,9 +128,9 @@ type WorkerGroupRequest struct {
 	Worker Worker `json:"worker"`
 }
 
-// Openstack
+// Openstack.
 
-// / Openstack domains
+// Openstack domains.
 type OpenstackDomain struct {
 	Area    OpenstackArea `json:"area"`
 	Id      string        `json:"id"`
@@ -152,8 +151,7 @@ type OpenstackRegion struct {
 	Region string `json:"region"`
 }
 
-/// Openstack projects
-
+// / Openstack projects.
 type OpenstackProject struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`

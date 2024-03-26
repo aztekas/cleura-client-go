@@ -16,7 +16,7 @@ func showCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:    "name",
 				Aliases: []string{"n"},
-				Usage:   "Configuration name withing config file. Choose currently active by default",
+				Usage:   "Configuration name within config file. Choose currently active by default",
 			},
 		},
 		Action: func(ctx *cli.Context) error {

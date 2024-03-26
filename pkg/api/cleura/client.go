@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-// HostURL - Default Cleura API Endpoint prefix
+// HostURL - Default Cleura API Endpoint prefix.
 const HostURL string = "https://rest.cleura.cloud" //"http://localhost:8088/"
 
-// Need to know status code for retry
+// Need to know status code for retry.
 type RequestAPIError struct {
 	StatusCode int
 	Err        error
@@ -20,7 +20,7 @@ func (r *RequestAPIError) Error() string {
 	return r.Err.Error()
 }
 
-// Client -
+// Client.
 type Client struct {
 	HostURL    string
 	HTTPClient *http.Client
@@ -28,12 +28,12 @@ type Client struct {
 	Auth       AuthStruct
 }
 
-// AuthStruct Wrapper
+// AuthStruct Wrapper.
 type AuthStructWrapper struct {
 	Auth AuthStruct `json:"auth"`
 }
 
-// AuthStruct -
+// AuthStruct.
 type AuthStruct struct {
 	Username         string `json:"login"`
 	Password         string `json:"password"`
@@ -41,13 +41,13 @@ type AuthStruct struct {
 	VerificationCode string `json:"verification,omitempty"`
 }
 
-// AuthResponse -
+// AuthResponse.
 type AuthResponse struct {
 	Result string `json:"result"`
 	Token  string `json:"token"`
 }
 
-// AuthVerificationResult
+// AuthVerificationResult.
 type AuthVerificationResult struct {
 	Result       string `json:"result"`
 	Type         string `json:"type"`
@@ -71,7 +71,7 @@ type AuthVerifyTwoFactorDetails struct {
 	Code         int    `json:"code"`
 }
 
-// NewClient -
+// NewClient.
 func NewClient(host, username, password *string, twoFactorAuthEnabled bool) (*Client, error) {
 	c := Client{
 		HTTPClient: &http.Client{Timeout: 600 * time.Second},

@@ -85,7 +85,7 @@ func (c *Config) PrintConfigurations() {
 	}
 }
 
-// Print specified configuration to stdout
+// Print specified configuration to stdout.
 func (c *Config) PrintConfigurationContent(name string) error {
 	var confName string
 	if name == "" {
@@ -113,7 +113,7 @@ func (c *Config) PrintConfigurationContent(name string) error {
 	return nil
 }
 
-// Loads configuration settings from specified file path
+// Loads configuration settings from specified file path.
 func LoadConfiguration(path string) (*Config, error) {
 	var config Config
 	path, err := utils.ChoosePath(path)
@@ -134,7 +134,7 @@ func LoadConfiguration(path string) (*Config, error) {
 	return &config, nil
 }
 
-// Get available configuration settings from supplied or default configuration file
+// Get available configuration settings from supplied or default configuration file.
 func TrySetConfigFromFile(c *cli.Context) error {
 	var config *Config
 	//ignore api-host as it always has default value
@@ -159,10 +159,17 @@ func TrySetConfigFromFile(c *cli.Context) error {
 	//Iterate over all defined flags (set and unset)
 	for _, flag := range c.Command.Flags {
 		ok := c.IsSet(flag.Names()[0])
-		// Only set flags that are not already set directly of via environment variables
+		// Only set flags that are not already set directly or via environment variables
 		_, inConfig := configFromFile[flag.Names()[0]]
 		if !ok && !slices.Contains(ignoreFlags, flag.Names()[0]) && inConfig {
-			c.Set(flag.Names()[0], configFromFile[flag.Names()[0]].(string))
+			flagValueFromConfig, ok := configFromFile[flag.Names()[0]].(string)
+			if !ok {
+				return fmt.Errorf("error: cannot assert string type assertion")
+			}
+			err = c.Set(flag.Names()[0], flagValueFromConfig)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	//return fmt.Errorf("error: expected error")

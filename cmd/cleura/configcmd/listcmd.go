@@ -6,7 +6,7 @@ func listCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "list",
 		Description: "List available configurations",
-		Usage: "List available configurations defined in configuration file",
+		Usage:       "List available configurations defined in configuration file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "config-path",

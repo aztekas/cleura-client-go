@@ -101,7 +101,11 @@ func genKubeConfigCommand() *cli.Command {
 					return err
 				}
 			} else {
-				fmt.Println(configContent.(string))
+				content, ok := configContent.(string)
+				if !ok {
+					return fmt.Errorf("error: cannot assert string")
+				}
+				fmt.Println(content)
 			}
 			return nil
 		},

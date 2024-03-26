@@ -11,7 +11,7 @@ import (
 	"golang.org/x/term"
 )
 
-// Return default location within user home directory ($HOME/.config/cleura/config)
+// Return default location within user home directory ($HOME/.config/cleura/config).
 func GetDefaultConfigPath() string {
 	homedir, err := os.UserHomeDir()
 	if err != nil {
@@ -21,7 +21,7 @@ func GetDefaultConfigPath() string {
 }
 
 // Choose path for the configuration file. Choose path` if supplied
-// otherwise set path within default user directory
+// otherwise set path within default user directory.
 func ChoosePath(path string) (string, error) {
 	if path == "" {
 		path = GetDefaultConfigPath()
@@ -32,7 +32,7 @@ func ChoosePath(path string) (string, error) {
 	return path, nil
 }
 
-// Return a map of KV from an arbitrary struct
+// Return a map of KV from an arbitrary struct.
 func ToMap(in interface{}, tag string) (map[string]interface{}, error) {
 	out := make(map[string]interface{})
 
@@ -70,7 +70,7 @@ func ValidateNotEmptyString(ctx *cli.Context, flags ...string) error {
 func GetUserInput(asking string, masked bool) (userInput string, err error) {
 	fmt.Printf("Enter %s: ", asking)
 	if masked {
-		secretInput, err := term.ReadPassword(int(syscall.Stdin))
+		secretInput, err := term.ReadPassword(syscall.Stdin)
 		if err != nil {
 			return "", err
 		}

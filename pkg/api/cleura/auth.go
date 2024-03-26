@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// GetToken - Get a new token for the user
+// GetToken - Get a new token for the user.
 func (c *Client) GetToken() (*AuthResponse, error) {
 	if c.Auth.Username == "" || c.Auth.Password == "" {
 		return nil, fmt.Errorf("define username and password")
@@ -35,13 +35,13 @@ func (c *Client) GetToken() (*AuthResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	if ar.Result!="login_ok"{
-		return nil, fmt.Errorf("error: get token failed, expected result: `login_ok`, got: %s,",ar.Result)
+	if ar.Result != "login_ok" {
+		return nil, fmt.Errorf("error: get token failed, expected result: `login_ok`, got: %s,", ar.Result)
 	}
 	return &ar, nil
 }
 
-// RevokeToken - Revoke client token
+// RevokeToken - Revoke client token.
 func (c *Client) RevokeToken() error {
 	//https://rest.cleura.cloud/auth/v1/tokens
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/auth/v1/tokens", c.HostURL), nil)
@@ -55,7 +55,7 @@ func (c *Client) RevokeToken() error {
 	return nil
 }
 
-// Validate client token
+// Validate client token.
 func (c *Client) ValidateToken() error {
 	//https://rest.cleura.cloud/auth/v1/tokens/validate
 
@@ -70,6 +70,7 @@ func (c *Client) ValidateToken() error {
 	return nil
 }
 
+// Request verification code if 2-factor auth is enabled.
 func (c *Client) Request2FactorCode() error {
 	//https://rest.cleura.cloud/auth/v1/tokens
 	// get verification code
@@ -113,12 +114,11 @@ func (c *Client) Request2FactorCode() error {
 		return err
 	}
 	c.Auth.VerificationCode = authVerificationResult.Verification
-	//request 2factor code via sms
 	return nil
 }
 
+// Issue token request with two-factor code received via sms.
 func (c *Client) GetTokenWith2FA(twoFACodeFromSms int) error {
-	//issue token request with two-factor code received via sms
 	var ar AuthResponse
 	verify2FaDetails := &AuthVerifyTwoFactorDetails{
 		Login:        c.Auth.Username,

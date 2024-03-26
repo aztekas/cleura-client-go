@@ -6,7 +6,7 @@ func setCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "set",
 		Description: "Set active configuration from the list of configurations defined in the configuration file",
-		Usage: "Set active configuration from the list of configurations defined in the configuration file",
+		Usage:       "Set active configuration from the list of configurations defined in the configuration file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "name",
