@@ -14,6 +14,7 @@ import (
 
 var (
 	version = "dev"
+	commit  = "uncommitted"
 )
 
 func commands() []*cli.Command {
@@ -31,7 +32,7 @@ func main() {
 	app := cli.NewApp()
 	app.Usage = "A Cleura API CLI"
 	app.Name = "cleura"
-	app.Version = version
+	app.Version = version + "-" + commit
 	app.Commands = commands()
 	err := app.Run(os.Args)
 	if err != nil {

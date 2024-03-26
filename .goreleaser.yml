@@ -1,0 +1,52 @@
+# Visit https://goreleaser.com for documentation on how to customize this
+# behavior.
+before:
+  hooks:
+    - go mod tidy
+project_name: cleura-cli
+builds:
+- env:
+    - CGO_ENABLED=0
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  flags:
+    - -trimpath
+  dir: ./cmd/cleura
+  main: ./
+  binary: cleura
+  ldflags:
+    - '-s -w -X github.com/aztekas/cleura-client-go/cmd/cleura/cleura.version={{.Version}} -X github.com/aztekas/cleura-client-go/cmd/cleura/cleura.commit={{.Commit}}'
+  goos:
+    - windows
+    - linux
+    - darwin
+  goarch:
+    - amd64
+    - arm64
+  ignore:
+    - goos: linux
+      goarch: arm64
+    - goos: windows
+      goarch: arm64
+archives:
+- format: tar.gz
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+checksum:
+  name_template: 'checksums_SHA256.txt'
+  algorithm: sha256
+
+release:
+  github:
+    owner: aztekas
+    name: Cleura CLI
+  header: Cleura CLI ({{ .Version }})
+  draft: true
+
+  # If you want to manually examine the release before its live, uncomment this line:
+  # draft: true
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
