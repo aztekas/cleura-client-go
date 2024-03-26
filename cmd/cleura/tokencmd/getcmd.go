@@ -95,7 +95,7 @@ func getCommand() *cli.Command {
 				if err != nil {
 					return err
 				}
-				input, err := utils.GetUserInput("SMS Code:", false)
+				input, err := utils.GetUserInput("SMS Code", false)
 				if err != nil {
 					return err
 				}

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"syscall"
 
 	"github.com/urfave/cli/v2"
 	"golang.org/x/term"
@@ -70,10 +69,12 @@ func ValidateNotEmptyString(ctx *cli.Context, flags ...string) error {
 func GetUserInput(asking string, masked bool) (userInput string, err error) {
 	fmt.Printf("Enter %s: ", asking)
 	if masked {
-		secretInput, err := term.ReadPassword(syscall.Stdin)
+
+		secretInput, err := term.ReadPassword(int(os.Stdin.Fd()))
 		if err != nil {
 			return "", err
 		}
+		fmt.Println("")
 		return string(secretInput), nil
 	}
 	var input string
