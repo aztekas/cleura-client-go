@@ -6,6 +6,8 @@
 
 ## TODO API
 
+* [ ] Add API calls to hibernate/wake-up given shoot clusters.
+
 ## TODO GENERAL
 
 * [ ] Add testing
