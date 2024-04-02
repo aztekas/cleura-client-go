@@ -1,7 +1,6 @@
 package shootcmd
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
@@ -160,8 +159,6 @@ func createCommand() *cli.Command {
 			}
 			if ctx.Bool("cluster") {
 				clusterReq := generateShootClusterRequest(ctx)
-				body, _ := json.MarshalIndent(clusterReq, "", " ")
-				fmt.Printf("%s", string(body))
 				_, err := client.CreateShootCluster(ctx.String("region"), ctx.String("project-id"), clusterReq)
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)

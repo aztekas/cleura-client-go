@@ -12,6 +12,8 @@ func Command() *cli.Command {
 			listCommand(),
 			createCommand(),
 			deleteCommand(),
+			hibernateCommand(),
+			wakeupCommand(),
 		},
 	}
 }

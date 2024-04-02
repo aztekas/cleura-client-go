@@ -198,6 +198,33 @@ func (c *Client) GenerateKubeConfig(clusterRegion string, clusterProject string,
 	if err != nil {
 		return nil, err
 	}
-
 	return body, nil
+}
+
+// Hibernate.
+func (c *Client) HibernateCluster(clusterRegion string, clusterProject string, clusterName string) error {
+	// https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shoot/hibernate
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/gardener/v1/public/shoot/%s/%s/%s/hibernate", c.HostURL, clusterRegion, clusterProject, clusterName), nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.doRequest(req, 202)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Wake up call.
+func (c *Client) WakeUpCluster(clusterRegion string, clusterProject string, clusterName string) error {
+	// https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shoot/wakeup
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/gardener/v1/public/shoot/%s/%s/%s/wakeup", c.HostURL, clusterRegion, clusterProject, clusterName), nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.doRequest(req, 202)
+	if err != nil {
+		return err
+	}
+	return nil
 }
