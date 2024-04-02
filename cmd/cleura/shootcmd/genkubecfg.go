@@ -38,7 +38,7 @@ func genKubeConfigCommand() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:    "project-id",
-				Aliases: []string{"p"},
+				Aliases: []string{"project"},
 				Usage:   "Openstack project id. Try \"cleura project list\" command for the list of available projects",
 				EnvVars: []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
 			},

@@ -12,8 +12,8 @@ import (
 func deleteCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "delete",
-		Description: "Delete a whole cluster or a workgroup in specified cluster",
-		Usage:       "Delete a whole cluster or a workgroup in specified cluster",
+		Description: "Delete a cluster or a workgroup in the specified cluster",
+		Usage:       "Delete a cluster or a workgroup in the specified cluster",
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags: append(
 			utils.CommonFlags(),
@@ -105,6 +105,19 @@ func deleteCommand() *cli.Command {
 					return err
 				}
 				fmt.Printf("Cluster: `%s` is being deleted.\nPlease check operation status with `cleura shoot list` command\n", ctx.String("cluster-name"))
+			}
+			if ctx.Bool("workergroup") {
+				_, err := client.DeleteWorkerGroup(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), ctx.String("wg-name"))
+				if err != nil {
+					re, ok := err.(*cleura.RequestAPIError)
+					if ok {
+						if re.StatusCode == 403 {
+							return fmt.Errorf("error: invalid token")
+						}
+					}
+					return err
+				}
+				fmt.Printf("Workergroup: `%s` in cluster: `%s` is being deleted.\nPlease check operation status with `cleura shoot list` command\n", ctx.String("wg-name"), ctx.String("cluster-name"))
 			}
 			return nil
 		},

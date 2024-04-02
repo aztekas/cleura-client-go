@@ -28,7 +28,7 @@ func createCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:     "project-id",
 				Category: "Location settings",
-				Usage:    "Specify Cleura project to list shoot clusters in",
+				Usage:    "Specify Cleura project id",
 				Aliases:  []string{"project"},
 				EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
 			},
@@ -76,7 +76,7 @@ func createCommand() *cli.Command {
 				Name:     "k8s-version",
 				Category: "Basic cluster settings",
 				Usage:    "Supported Kubernetes version",
-				Value:    "1.28.7",
+				Value:    "1.28.8",
 			},
 			&cli.IntFlag{
 				Name:     "wg-min",
@@ -106,7 +106,7 @@ func createCommand() *cli.Command {
 				Name:     "wg-image-version",
 				Category: "Workergroup settings",
 				Usage:    "Workergroup image version",
-				Value:    "1312.2.0",
+				Value:    "1312.3.0",
 			},
 			&cli.StringFlag{
 				Name:     "wg-volume-size",
@@ -160,6 +160,8 @@ func createCommand() *cli.Command {
 			}
 			if ctx.Bool("cluster") {
 				clusterReq := generateShootClusterRequest(ctx)
+				body, _ := json.MarshalIndent(clusterReq, "", " ")
+				fmt.Printf("%s", string(body))
 				_, err := client.CreateShootCluster(ctx.String("region"), ctx.String("project-id"), clusterReq)
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)
@@ -175,11 +177,22 @@ func createCommand() *cli.Command {
 			}
 			if ctx.Bool("workergroup") {
 				wgReq := generateWorkerGroupRequest(ctx)
-				body, err := json.MarshalIndent(wgReq, "", " ")
+				// body, err := json.MarshalIndent(wgReq, "", " ")
+				// if err != nil {
+				// 	return err
+				// }
+				// fmt.Printf("%s", string(body))
+				resp, err := client.AddWorkerGroup(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), wgReq)
 				if err != nil {
+					re, ok := err.(*cleura.RequestAPIError)
+					if ok {
+						if re.StatusCode == 403 {
+							return fmt.Errorf("error: invalid token")
+						}
+					}
 					return err
 				}
-				fmt.Printf("%s", string(body))
+				fmt.Printf("New workgroup is being added to the cluster `%s`.\nPlease check status with `cleura shoot list` command\n", resp.Metadata.Name)
 			}
 			return nil
 		},
@@ -235,21 +248,24 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 }
 
 func generateWorkerGroupRequest(ctx *cli.Context) cleura.WorkerGroupRequest {
-	return cleura.WorkerGroupRequest{
+	wgReq := cleura.WorkerGroupRequest{
 		Worker: cleura.Worker{
-			Name:    ctx.String("name"),
-			Minimum: 1,
-			Maximum: 3,
+			Minimum: int16(ctx.Int("wg-min")),
+			Maximum: int16(ctx.Int("wg-max")),
 			Machine: cleura.MachineDetails{
-				Type: "b.2c4gb",
+				Type: ctx.String("wg-type"),
 				Image: cleura.ImageDetails{
-					Name:    "gardenlinux",
-					Version: "1312.2.0",
+					Name:    ctx.String("wg-image-name"),
+					Version: ctx.String("wg-image-version"),
 				},
 			},
 			Volume: cleura.VolumeDetails{
-				Size: "50Gi",
+				Size: ctx.String("wg-volume-size"),
 			},
 		},
 	}
+	if ctx.String("wg-name") != "" {
+		wgReq.Worker.Name = ctx.String("wg-name")
+	}
+	return wgReq
 }
