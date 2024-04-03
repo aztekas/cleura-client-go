@@ -1,3 +1,4 @@
+
 # cleura-client-go
 
 Cleura API Client and a CLI application
@@ -6,11 +7,16 @@ Cleura API Client and a CLI application
 
 ```terminal
 go install github.com/aztekas/cleura-client-go/cmd/cleura@latest
+
 ```
+
+> [!TIP] Check latest available version on the release page
 
 ## Usage and functionality
 
-```terminal
+```shell
+$ cleura -h
+
 NAME:
    cleura - A Cleura API CLI
 
@@ -18,7 +24,7 @@ USAGE:
    cleura [global options] command [command options]
 
 VERSION:
-   dev
+   dev-uncommitted
 
 COMMANDS:
    config   Command used for working with configuration file for the cleura cli
@@ -37,8 +43,9 @@ GLOBAL OPTIONS:
 
 Cleura CLI requires a token to query Cleura API. The easiest way to get token is to generate it providing `username` and `password` to the `cleura token get` command (or use corresponding environment variables).
 
-```terminal
-❯ cleura token get -h
+```shell
+$ cleura token get -h
+
 NAME:
    cleura token get - Receive token from Cleura API using username and password
 
@@ -49,19 +56,21 @@ DESCRIPTION:
    Receive token from Cleura API using username and password
 
 OPTIONS:
-   --username value, -u value          Username for token request [$CLEURA_API_USERNAME]
-   --password value, -p value          Password for token request [$CLEURA_API_PASSWORD]
-   --credentials-file value, -c value  Path to credentials json file
-   --api-host value, --host value      Cleura API host (default: "https://rest.cleura.cloud") [$CLEURA_API_HOST]
-   --update-config                     Save token to active configuration. NB: token saved in open text (default: false)
-   --path value                        Path to configuration file. $HOME/.config/cleura/config if not set
-   --help, -h                          show help
+   --username value, -u value      Username for token request [$CLEURA_API_USERNAME]
+   --password value, -p value      Password for token request. [$CLEURA_API_PASSWORD]
+   --api-host value, --host value  Cleura API host (default: "https://rest.cleura.cloud") [$CLEURA_API_HOST]
+   --update-config                 Save token to active configuration. NB: token saved in open text (default: false)
+   --config-path value             Path to configuration file. $HOME/.config/cleura/config if not set
+   --interactive, -i               Interactive mode. Input username and password in interactive mode (default: false)
+   --two-factor, --2fa             Set this flag if two-factor authentication (sms) is enabled in your cleura profile  (default: false)
+   --help, -h                      show help
 ```
 
-For more `"stable"` setup you can, first,  generate a cleura configuration file with:
+For convenience, you can, first,  generate a cleura configuration file with `generate-template` command:
 
-```terminal
-❯ cleura config generate-template -h
+```shell
+$ cleura config generate-template -h
+
 NAME:
    cleura config generate-template - Generate configuration file template on the given path
 
