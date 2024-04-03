@@ -22,7 +22,6 @@ func (c *Client) ListDomains() (*[]OpenstackDomain, error) {
 	if err != nil {
 		return nil, err
 	}
-	//shoots = append(shoots, shoot)
 	return &domains, nil
 }
 
@@ -42,6 +41,5 @@ func (c *Client) ListProjects(domain_id string) (*[]OpenstackProject, error) {
 	if err != nil {
 		return nil, err
 	}
-	//shoots = append(shoots, shoot)
 	return &projects, nil
 }

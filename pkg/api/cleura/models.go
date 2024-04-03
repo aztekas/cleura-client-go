@@ -81,7 +81,7 @@ type ProviderDetails struct {
 
 type InfrastructureConfigDetails struct {
 	FloatingPoolName string `json:"floatingPoolName"`
-	//Networks *WorkerNetwork `json:"networks,omitempty"`
+	// Networks *WorkerNetwork `json:"networks,omitempty"`
 }
 
 /*

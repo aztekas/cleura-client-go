@@ -23,7 +23,6 @@ func (c *Client) GetShootCluster(clusterName string, clusterRegion string, clust
 	if err != nil {
 		return nil, err
 	}
-	//shoots = append(shoots, shoot)
 	return &shoot, nil
 }
 
@@ -60,7 +59,6 @@ func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string,
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("Here's the body!: \n", string(body))
 	var createdShootCluster ShootClusterResponse
 	err = json.Unmarshal(body, &createdShootCluster)
 	if err != nil {
@@ -97,7 +95,6 @@ func (c *Client) UpdateShootCluster(clusterRegion string, clusterProject string,
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("Here's the body!: \n", string(body))
 	var createdShootCluster ShootClusterResponse
 	err = json.Unmarshal(body, &createdShootCluster)
 	if err != nil {

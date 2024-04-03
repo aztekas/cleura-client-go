@@ -83,13 +83,13 @@ func getCommand() *cli.Command {
 				password = ctx.String("password")
 			}
 
-			//Validate not empty
+			// Validate not empty
 			if username == "" || password == "" {
 				return errors.New("error: password and username must be supplied")
 			}
 			host = ctx.String("api-host")
 
-			//Handle two-factor authentication
+			// Handle two-factor authentication
 			if ctx.Bool("two-factor") {
 				client, err = cleura.NewClient(&host, &username, &password, true)
 				if err != nil {

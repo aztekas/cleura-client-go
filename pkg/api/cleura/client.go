@@ -8,7 +8,7 @@ import (
 )
 
 // HostURL - Default Cleura API Endpoint prefix.
-const HostURL string = "https://rest.cleura.cloud" //"http://localhost:8088/"
+const HostURL string = "https://rest.cleura.cloud"
 
 // Need to know status code for retry.
 type RequestAPIError struct {

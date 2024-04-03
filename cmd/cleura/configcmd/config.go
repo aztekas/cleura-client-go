@@ -24,7 +24,6 @@ type Configuration struct {
 	DefaultDomainID  string `mapstructure:"domain-id" yaml:"domain-id"`
 	DefaultRegion    string `mapstructure:"region" yaml:"region"`
 	DefaultProjectID string `mapstructure:"project-id" yaml:"project-id"`
-	//APIHost          string `mapstructure:"api-host" yaml:"api-host"`
 }
 
 func (c *Config) SetActive(name string) error {
@@ -76,7 +75,7 @@ func (c *Config) PrintConfigurations() {
 		fmt.Printf("Available configurations: (in %s)\n", c.location)
 		for i, conf := range maps.Keys(c.Configurations) {
 			if conf == c.ActiveConfig {
-				conf = conf + " (active)"
+				conf += " (active)"
 			}
 			fmt.Printf("%d. %s\n", i, conf)
 		}
@@ -137,8 +136,8 @@ func LoadConfiguration(path string) (*Config, error) {
 // Get available configuration settings from supplied or default configuration file.
 func TrySetConfigFromFile(c *cli.Context) error {
 	var config *Config
-	//ignore api-host as it always has default value
-	//ignore path as it always has default value (%HOME/.config/cleura/config)
+	// ignore api-host as it always has a default value
+	// ignore path as it always has a default value (%HOME/.config/cleura/config)
 	var ignoreFlags = []string{"help"}
 	config, err := LoadConfiguration(c.String("config-path"))
 	if err != nil {
@@ -156,7 +155,7 @@ func TrySetConfigFromFile(c *cli.Context) error {
 		return err
 	}
 
-	//Iterate over all defined flags (set and unset)
+	// Iterate over all defined flags (set and unset)
 	for _, flag := range c.Command.Flags {
 		ok := c.IsSet(flag.Names()[0])
 		// Only set flags that are not already set directly or via environment variables
@@ -172,7 +171,6 @@ func TrySetConfigFromFile(c *cli.Context) error {
 			}
 		}
 	}
-	//return fmt.Errorf("error: expected error")
 	return nil
 }
 
