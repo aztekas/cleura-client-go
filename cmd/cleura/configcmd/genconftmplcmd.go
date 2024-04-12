@@ -1,12 +1,8 @@
 package configcmd
 
 import (
-	"os"
-	"path/filepath"
-
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
 	"github.com/urfave/cli/v2"
-	"gopkg.in/yaml.v2"
 )
 
 func generateConfigTemplateCommand() *cli.Command {
@@ -22,33 +18,8 @@ func generateConfigTemplateCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			config := &Config{
-				ActiveConfig: "default",
-				Configurations: map[string]Configuration{
-					"default": {},
-				},
-			}
-			templateByte, err := yaml.Marshal(config)
+			err := configfile.CreateConfigTemplateFile(ctx.String("output-file"))
 			if err != nil {
-				return err
-			}
-			path, err := utils.ChoosePath(ctx.String("output-file"))
-			if err != nil {
-				return err
-			}
-			err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
-			if err != nil {
-				return err
-			}
-			f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0600)
-			if err != nil {
-				return err
-			}
-			if _, err := f.Write(templateByte); err != nil {
-				f.Close() // ignore error; Write error takes precedence
-				return err
-			}
-			if err := f.Close(); err != nil {
 				return err
 			}
 			return nil

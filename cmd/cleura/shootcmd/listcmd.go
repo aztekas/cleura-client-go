@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -13,32 +13,21 @@ import (
 )
 
 func listCommand() *cli.Command {
+	commonFlags := append(common.CleuraAuthFlags(), common.LocationFlags()...)
 	return &cli.Command{
 		Name:        "list",
 		Description: "List shoot clusters in a given project and region",
 		Usage:       "List shoot clusters in a given project and region",
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags: append(
-			utils.CommonFlags(),
-			&cli.StringFlag{
-				Name:    "region",
-				Aliases: []string{"r"},
-				Usage:   "Specify region",
-				EnvVars: []string{"CLEURA_API_DEFAULT_REGION"},
-			},
-			&cli.StringFlag{
-				Name:    "project-id",
-				Usage:   "Specify Cleura project to list shoot clusters in",
-				Aliases: []string{"project"},
-				EnvVars: []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
-			},
+			commonFlags,
 			&cli.BoolFlag{
 				Name:  "raw",
 				Usage: "Output in raw json",
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmptyString(ctx,
+			err := common.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",

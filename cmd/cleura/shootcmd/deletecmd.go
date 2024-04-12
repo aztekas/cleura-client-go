@@ -3,34 +3,21 @@ package shootcmd
 import (
 	"fmt"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
 
 func deleteCommand() *cli.Command {
+	commonFlags := append(common.CleuraAuthFlags(), common.LocationFlags()...)
 	return &cli.Command{
 		Name:        "delete",
 		Description: "Delete a cluster or a workgroup in the specified cluster",
 		Usage:       "Delete a cluster or a workgroup in the specified cluster",
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags: append(
-			utils.CommonFlags(),
-			&cli.StringFlag{
-				Name:     "region",
-				Category: "Location settings",
-				Aliases:  []string{"r"},
-				Usage:    "Specify region",
-				EnvVars:  []string{"CLEURA_API_DEFAULT_REGION"},
-			},
-			&cli.StringFlag{
-				Name:     "project-id",
-				Category: "Location settings",
-				Usage:    "Specify Cleura project to list shoot clusters in",
-				Aliases:  []string{"project"},
-				EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
-			},
+			commonFlags,
 			&cli.BoolFlag{
 				Name:  "cluster",
 				Usage: "One of --cluster or --workergroup flag is Required",
@@ -73,7 +60,7 @@ func deleteCommand() *cli.Command {
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmptyString(ctx,
+			err := common.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",

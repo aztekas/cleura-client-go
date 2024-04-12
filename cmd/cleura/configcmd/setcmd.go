@@ -1,12 +1,15 @@
 package configcmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/urfave/cli/v2"
+)
 
 func setCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "set",
-		Description: "Set active configuration from the list of configurations defined in the configuration file",
-		Usage:       "Set active configuration from the list of configurations defined in the configuration file",
+		Description: "Set active profile from the list of profiles defined in the configuration file",
+		Usage:       "Set active profile from the list of profiles defined in the configuration file",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "name",
@@ -21,12 +24,12 @@ func setCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			var config *Config
-			config, err := LoadConfiguration(ctx.String("config-path"))
+			var config *configfile.Configuration
+			config, err := configfile.InitConfiguration(ctx.String("config-path"))
 			if err != nil {
 				return err
 			}
-			err = config.SetActive(ctx.String("name"))
+			err = config.SetActiveProfile(ctx.String("name"))
 			if err != nil {
 				return err
 			}

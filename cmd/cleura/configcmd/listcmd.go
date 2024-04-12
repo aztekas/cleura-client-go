@@ -1,6 +1,12 @@
 package configcmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"fmt"
+
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/urfave/cli/v2"
+)
 
 func listCommand() *cli.Command {
 	return &cli.Command{
@@ -15,12 +21,21 @@ func listCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			var config *Config
-			config, err := LoadConfiguration(ctx.String("config-path"))
+			logger := common.CliLogger(ctx.String("loglevel"))
+			logger.Debug("cleura config list")
+			var config *configfile.Configuration
+			config, err := configfile.InitConfiguration(ctx.String("config-path"))
 			if err != nil {
 				return err
 			}
-			config.PrintConfigurations()
+
+			fmt.Printf("Available profiles: (in %s)\n", config.Location)
+			for i, prof := range config.ProfilesSlice() {
+				if prof == config.GetActiveProfile() {
+					prof += " (active)"
+				}
+				fmt.Printf("%d. %s\n", i, prof)
+			}
 			return nil
 		},
 	}

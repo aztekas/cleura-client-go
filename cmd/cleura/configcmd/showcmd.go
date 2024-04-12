@@ -1,6 +1,12 @@
 package configcmd
 
-import "github.com/urfave/cli/v2"
+import (
+	"fmt"
+
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/urfave/cli/v2"
+	"golang.org/x/exp/maps"
+)
 
 func showCommand() *cli.Command {
 	return &cli.Command{
@@ -20,14 +26,23 @@ func showCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			var config *Config
-			config, err := LoadConfiguration(ctx.String("config-path"))
+			var config *configfile.Configuration
+			config, err := configfile.InitConfiguration(ctx.String("config-path"))
 			if err != nil {
 				return err
 			}
-			err = config.PrintConfigurationContent(ctx.String("name"))
+			profileMap, err := config.GetProfileMap(ctx.String("name"))
 			if err != nil {
 				return err
+			}
+			fmt.Printf("Details for profile: `%s`\n", config.GetActiveProfile())
+			for _, key := range maps.Keys(profileMap) {
+				if key == "token" && profileMap[key] != "" {
+					fmt.Printf("%-10s: ****hidden****\n", "token")
+				} else {
+					fmt.Printf("%-10s: %s\n", key, profileMap[key])
+				}
+
 			}
 			return nil
 		},

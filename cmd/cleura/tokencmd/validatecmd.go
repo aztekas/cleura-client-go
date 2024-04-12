@@ -2,10 +2,9 @@ package tokencmd
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
@@ -16,8 +15,9 @@ func validateCommand() *cli.Command {
 		Description: "Validate currently active token",
 		Usage:       "Validate currently active token",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags:       utils.CommonFlags(),
+		Flags:       common.CleuraAuthFlags(),
 		Action: func(ctx *cli.Context) error {
+			logger := common.CliLogger(ctx.String("loglevel"))
 			token := ctx.String("token")
 			username := ctx.String("username")
 			host := ctx.String("api-host")
@@ -35,7 +35,7 @@ func validateCommand() *cli.Command {
 				}
 				return err
 			}
-			log.Println("token is valid")
+			logger.Info("token is valid")
 			return nil
 		},
 	}

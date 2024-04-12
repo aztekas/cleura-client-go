@@ -3,22 +3,23 @@ package shootcmd
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
 	"github.com/urfave/cli/v2"
 )
 
 func genKubeConfigCommand() *cli.Command {
+	commonFlags := append(common.CleuraAuthFlags(), common.LocationFlags()...)
 	return &cli.Command{
 		Name:        "generate-kubeconfig",
 		Description: "Get and save kubeconfig for selected shoot cluster",
 		Usage:       "Get and save kubeconfig for selected shoot cluster. NB: overwrites existing kubeconfig",
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags: append(
-			utils.CommonFlags(),
+			commonFlags,
 			&cli.StringFlag{
 				Name:    "output-path",
 				Aliases: []string{"o"},
@@ -30,18 +31,6 @@ func genKubeConfigCommand() *cli.Command {
 				Aliases:  []string{"n"},
 				Usage:    "Shoot cluster name",
 			},
-			&cli.StringFlag{
-				Name:    "region",
-				Aliases: []string{"r"},
-				Usage:   "Openstack region. Try \"cleura domains list\" command for available regions in your domain",
-				EnvVars: []string{"CLEURA_API_DEFAULT_REGION"},
-			},
-			&cli.StringFlag{
-				Name:    "project-id",
-				Aliases: []string{"project"},
-				Usage:   "Openstack project id. Try \"cleura project list\" command for the list of available projects",
-				EnvVars: []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
-			},
 			&cli.Int64Flag{
 				Name:    "config-duration",
 				Aliases: []string{"d"},
@@ -50,7 +39,7 @@ func genKubeConfigCommand() *cli.Command {
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmptyString(ctx,
+			err := common.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",
@@ -88,23 +77,14 @@ func genKubeConfigCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
+			content, ok := configContent.(string)
+			if !ok {
+				return fmt.Errorf("error: cannot assert string")
+			}
 			if ctx.String("output-path") != "" {
-				f, err := os.OpenFile(ctx.String("output-path"), os.O_RDWR|os.O_CREATE, 0600)
-				if err != nil {
-					return err
-				}
-				if _, err := f.Write([]byte(configContent.(string))); err != nil {
-					f.Close() // ignore error; Write error takes precedence
-					return err
-				}
-				if err := f.Close(); err != nil {
-					return err
-				}
+				err := configfile.WriteByteToFile(ctx.String("output-path"), []byte(content))
+				return err
 			} else {
-				content, ok := configContent.(string)
-				if !ok {
-					return fmt.Errorf("error: cannot assert string")
-				}
 				fmt.Println(content)
 			}
 			return nil

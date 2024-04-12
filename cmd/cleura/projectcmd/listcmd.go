@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
@@ -18,7 +18,7 @@ func listCommand() *cli.Command {
 		Usage:  "List projects in the defined domain",
 		Before: configcmd.TrySetConfigFromFile,
 		Flags: append(
-			utils.CommonFlags(),
+			common.CleuraAuthFlags(),
 			&cli.StringFlag{
 				Name:    "domain-id",
 				Aliases: []string{"d"},
@@ -27,7 +27,7 @@ func listCommand() *cli.Command {
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmptyString(ctx,
+			err := common.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",

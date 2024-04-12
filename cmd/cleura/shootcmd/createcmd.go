@@ -3,34 +3,21 @@ package shootcmd
 import (
 	"fmt"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
 
 func createCommand() *cli.Command {
+	commonFlags := append(common.CleuraAuthFlags(), common.LocationFlags()...)
 	return &cli.Command{
 		Name:        "create",
 		Description: "Create shoot cluster or add a workergroup",
 		Usage:       "Create shoot cluster or add a workergroup",
 		Before:      configcmd.TrySetConfigFromFile,
 		Flags: append(
-			utils.CommonFlags(),
-			&cli.StringFlag{
-				Name:     "region",
-				Category: "Location settings",
-				Aliases:  []string{"r"},
-				Usage:    "Specify region",
-				EnvVars:  []string{"CLEURA_API_DEFAULT_REGION"},
-			},
-			&cli.StringFlag{
-				Name:     "project-id",
-				Category: "Location settings",
-				Usage:    "Specify Cleura project id",
-				Aliases:  []string{"project"},
-				EnvVars:  []string{"CLEURA_API_DEFAULT_PROJECT_ID"},
-			},
+			commonFlags,
 			&cli.BoolFlag{
 				Name:  "cluster",
 				Usage: "One of --cluster or --workergroup flag is Required",
@@ -137,7 +124,7 @@ func createCommand() *cli.Command {
 			},
 		),
 		Action: func(ctx *cli.Context) error {
-			err := utils.ValidateNotEmptyString(ctx,
+			err := common.ValidateNotEmptyString(ctx,
 				"token",
 				"username",
 				"api-host",

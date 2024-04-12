@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/aztekas/cleura-client-go/pkg/util"
 	"github.com/urfave/cli/v2"
 )
 
@@ -39,7 +40,7 @@ func getCommand() *cli.Command {
 			&cli.BoolFlag{
 				Name:       "update-config",
 				Usage:      "Save token to active configuration. NB: token saved in open text",
-				Value:      false,
+				Value:      true,
 				HasBeenSet: true,
 			},
 			&cli.StringFlag{
@@ -65,16 +66,16 @@ func getCommand() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-
+			logger := common.CliLogger(ctx.String("loglevel"))
 			var host, username, password string
 			var client *cleura.Client
 			var err error
 			if ctx.Bool("interactive") {
-				username, err = utils.GetUserInput("username", false)
+				username, err = util.GetUserInput("username", false)
 				if err != nil {
 					return err
 				}
-				password, err = utils.GetUserInput("password", true)
+				password, err = util.GetUserInput("password", true)
 				if err != nil {
 					return err
 				}
@@ -95,7 +96,7 @@ func getCommand() *cli.Command {
 				if err != nil {
 					return err
 				}
-				input, err := utils.GetUserInput("SMS Code", false)
+				input, err := util.GetUserInput("SMS Code", false)
 				if err != nil {
 					return err
 				}
@@ -113,20 +114,19 @@ func getCommand() *cli.Command {
 					return err
 				}
 			}
-			if ctx.Bool("update-config") {
-				config, err := configcmd.LoadConfiguration(ctx.String("config-path"))
-				if err != nil {
-					return err
-				}
-				err = config.UpdateConfiguration("token", client.Token)
-				if err != nil {
-					return err
-				}
-				fmt.Println("\nToken is updated")
-			}
 			fmt.Printf("\nexport CLEURA_API_TOKEN=%v\nexport CLEURA_API_USERNAME=%v\nexport CLEURA_API_HOST=%v\n", client.Token, client.Auth.Username, ctx.String("api-host"))
+			if ctx.Bool("update-config") {
+				config, err := configfile.InitConfiguration(ctx.String("config-path"))
+				if err != nil {
+					return fmt.Errorf("error updating configuration file: `%s`, %w", ctx.String("config-path"), err)
+				}
+				err = config.SetProfileField("token", client.Token)
+				if err != nil {
+					return err
+				}
+				logger.Info("Token is updated")
+			}
 			return nil
-
 		},
 	}
 

@@ -10,6 +10,8 @@
 
 ## BUGS
 
+* [ ] Saving kubeconfig fails from time to time. One: Depends on machine clock (wsl lags time sync), Two: looks like it doesn't completely overwrite opened file (saved data is corrupted if existing kubeconfig contains data in it)
+
 ## IMPLEMENTED
 
 * [x] Add Github Actions workflow for building/publishing

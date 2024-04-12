@@ -2,10 +2,9 @@ package tokencmd
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/cmd/cleura/utils"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
 	"github.com/urfave/cli/v2"
 )
@@ -16,8 +15,9 @@ func revokeCommand() *cli.Command {
 		Description: "Revoke currently active token",
 		Usage:       "Revoke currently active token",
 		Before:      configcmd.TrySetConfigFromFile,
-		Flags:       utils.CommonFlags(),
+		Flags:       common.CleuraAuthFlags(),
 		Action: func(ctx *cli.Context) error {
+			logger := common.CliLogger(ctx.String("loglevel"))
 			token := ctx.String("token")
 			username := ctx.String("username")
 			host := ctx.String("api-host")
@@ -35,7 +35,7 @@ func revokeCommand() *cli.Command {
 				}
 				return err
 			}
-			log.Println("token successfully revoked")
+			logger.Info("token successfully revoked")
 			return nil
 
 		},

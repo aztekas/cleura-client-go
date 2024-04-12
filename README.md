@@ -24,7 +24,7 @@ USAGE:
    cleura [global options] command [command options]
 
 VERSION:
-   dev-uncommitted
+   latest-uncommitted
 
 COMMANDS:
    config   Command used for working with configuration file for the cleura cli
@@ -35,8 +35,9 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --help, -h     show help
-   --version, -v  print the version
+   --loglevel value  (default: "info")
+   --help, -h        show help
+   --version, -v     print the version
 ```
 
 ## Credentials
@@ -59,7 +60,7 @@ OPTIONS:
    --username value, -u value      Username for token request [$CLEURA_API_USERNAME]
    --password value, -p value      Password for token request. [$CLEURA_API_PASSWORD]
    --api-host value, --host value  Cleura API host (default: "https://rest.cleura.cloud") [$CLEURA_API_HOST]
-   --update-config                 Save token to active configuration. NB: token saved in open text (default: false)
+   --update-config                 Save token to active configuration. NB: token saved in open text (default: true)
    --config-path value             Path to configuration file. $HOME/.config/cleura/config if not set
    --interactive, -i               Interactive mode. Input username and password in interactive mode (default: false)
    --two-factor, --2fa             Set this flag if two-factor authentication (sms) is enabled in your cleura profile  (default: false)
