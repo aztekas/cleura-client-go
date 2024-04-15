@@ -10,7 +10,8 @@ go install github.com/aztekas/cleura-client-go/cmd/cleura@latest
 
 ```
 
-> [!TIP] Check latest available version on the release page
+> [!TIP]
+> Check latest available version on the release page
 
 ## Usage and functionality
 
