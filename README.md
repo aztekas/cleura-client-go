@@ -58,14 +58,17 @@ DESCRIPTION:
    Receive token from Cleura API using username and password
 
 OPTIONS:
-   --username value, -u value      Username for token request [$CLEURA_API_USERNAME]
-   --password value, -p value      Password for token request. [$CLEURA_API_PASSWORD]
+   --config-path value  Path to configuration file. $HOME/.config/cleura/config if not set
+   --help, -h           show help
+   --interactive, -i    Interactive mode. Input username and password in interactive mode (default: false)
+   --two-factor, --2fa  Set this flag if two-factor authentication (sms) is enabled in your cleura profile  (default: false)
+   --update-config      Save token to active configuration. NB: token saved in open text (default: true)
+
+   Cleura auth settings
+
    --api-host value, --host value  Cleura API host (default: "https://rest.cleura.cloud") [$CLEURA_API_HOST]
-   --update-config                 Save token to active configuration. NB: token saved in open text (default: true)
-   --config-path value             Path to configuration file. $HOME/.config/cleura/config if not set
-   --interactive, -i               Interactive mode. Input username and password in interactive mode (default: false)
-   --two-factor, --2fa             Set this flag if two-factor authentication (sms) is enabled in your cleura profile  (default: false)
-   --help, -h                      show help
+   --password value, -p value      Password for token request. [$CLEURA_API_PASSWORD]
+   --username value, -u value      Username for token request [$CLEURA_API_USERNAME]
 ```
 
 For convenience, you can, first,  generate a cleura configuration file with `generate-template` command:
