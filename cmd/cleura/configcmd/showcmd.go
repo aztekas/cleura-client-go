@@ -3,7 +3,7 @@ package configcmd
 import (
 	"fmt"
 
-	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/aztekas/cleura-client-go/internal/configfile"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/maps"
 )

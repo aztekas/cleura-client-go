@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
+	"github.com/aztekas/cleura-client-go/internal/configfile"
+	"github.com/aztekas/cleura-client-go/internal/util"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
-	"github.com/aztekas/cleura-client-go/pkg/configfile"
-	"github.com/aztekas/cleura-client-go/pkg/util"
 	"github.com/urfave/cli/v2"
 )
 

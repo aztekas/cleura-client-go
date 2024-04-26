@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/aztekas/cleura-client-go/pkg/util"
+	"github.com/aztekas/cleura-client-go/internal/util"
 	"github.com/gofrs/flock"
 	"golang.org/x/exp/maps"
 	"gopkg.in/yaml.v2"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
-	"github.com/aztekas/cleura-client-go/pkg/configfile"
+	"github.com/aztekas/cleura-client-go/internal/configfile"
 	"github.com/urfave/cli/v2"
 )
 
