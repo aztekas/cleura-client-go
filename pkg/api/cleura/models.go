@@ -122,10 +122,42 @@ type HibernationSchedule struct {
 	End   string `json:"end"`
 }
 
-// Working groups
+// Worker groups.
 
 type WorkerGroupRequest struct {
 	Worker Worker `json:"worker"`
+}
+
+// Gardener Cloud Profiles
+
+type CPMachineType struct {
+	Cpu          string `json:"cpu"`
+	Gpu          string `json:"gpu"`
+	Memory       string `json:"memory"`
+	Name         string `json:"name"`
+	Usable       bool   `json:"usable"`
+	Architecture string `json:"architecture"`
+}
+type CPMachineImage struct {
+	Name     string      `json:"name"`
+	Versions []CPVersion `json:"versions"`
+}
+type CPVersion struct {
+	Version        string `json:"version"`
+	ExpirationDate string `json:"expirationDate"`
+	Classification string `json:"classification"`
+}
+type CPKubernetes struct {
+	Versions []CPVersion `json:"versions"`
+}
+type CloudProfileSpec struct {
+	Kubernetes    CPKubernetes     `json:"kubernetes"`
+	MachineImages []CPMachineImage `json:"machineImages"`
+	MachineTypes  []CPMachineType  `json:"machineTypes"`
+}
+type CloudProfile struct {
+	Name string           `json:"name"`
+	Spec CloudProfileSpec `json:"spec"`
 }
 
 // Openstack.
@@ -151,7 +183,7 @@ type OpenstackRegion struct {
 	Region string `json:"region"`
 }
 
-// / Openstack projects.
+// Openstack projects.
 type OpenstackProject struct {
 	Id          string `json:"id"`
 	Name        string `json:"name"`
