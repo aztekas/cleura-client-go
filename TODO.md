@@ -10,6 +10,8 @@
 
 ## BUGS
 
+* [ ] Running `cleura config show -n "non-existent profile name"` shows blank config, whereas should through `profile doesn't exist`
+
 ## IMPLEMENTED/FIXED
 
 * [x] Add Github Actions workflow for building/publishing
