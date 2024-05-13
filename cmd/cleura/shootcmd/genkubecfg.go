@@ -6,8 +6,8 @@ import (
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
-	"github.com/aztekas/cleura-client-go/internal/configfile"
 	"github.com/aztekas/cleura-client-go/pkg/api/cleura"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
 	"github.com/urfave/cli/v2"
 )
 

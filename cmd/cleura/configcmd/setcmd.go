@@ -1,7 +1,7 @@
 package configcmd
 
 import (
-	"github.com/aztekas/cleura-client-go/internal/configfile"
+	"github.com/aztekas/cleura-client-go/pkg/configfile"
 	"github.com/urfave/cli/v2"
 )
 
