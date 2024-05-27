@@ -164,7 +164,14 @@ func CreateConfigTemplateFile(filename string) error {
 	template := &configFile{
 		ActiveProfile: "default",
 		Profiles: map[string]profile{
-			"default": {},
+			"default": {
+				Username:         "username-placeholder",
+				Token:            "token-placeholder",
+				DefaultDomainID:  "domainid-placeholder",
+				DefaultRegion:    "region-placeholder",
+				DefaultProjectID: "projectid-placeholder",
+				ApiUrl:           "https://rest.cleura.cloud",
+			},
 		},
 	}
 	err = writeConfigFile(filename, *template)
