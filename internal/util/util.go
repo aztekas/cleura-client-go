@@ -91,6 +91,6 @@ func GetUserInput(asking string, masked bool) (userInput string, err error) {
 		return string(secretInput), nil
 	}
 	var input string
-	fmt.Scanln(&input)
-	return input, nil
+	_, err = fmt.Scanln(&input)
+	return input, err
 }
