@@ -160,6 +160,20 @@ type CloudProfile struct {
 	Spec CloudProfileSpec `json:"spec"`
 }
 
+// Floating Ip
+
+type FloatingIp struct {
+	Id                string `json:"id"`
+	Description       string `json:"description"`
+	TenantId          string `json:"tenant_id"`
+	FloatingIpAddress string `json:"floating_ip_address"`
+	FloatingNetworkId string `json:"floating_network_id"`
+	ProjectId         string `json:"project_id"`
+	Status            string `json:"status"`
+	CreatedAt         string `json:"created_at"`
+	UpdatedAt         string `json:"updated_at"`
+}
+
 // Openstack.
 
 // Openstack domains.
