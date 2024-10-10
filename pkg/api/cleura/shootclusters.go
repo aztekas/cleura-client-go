@@ -55,7 +55,7 @@ func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string,
 	if err != nil {
 		return nil, err
 	}
-	body, err := c.doRequest(req, 201)
+	body, err := c.doRequest(req, 200)
 	if err != nil {
 		return nil, err
 	}
