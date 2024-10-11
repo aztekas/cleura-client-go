@@ -45,7 +45,7 @@ func (c *Client) ListShootClusters(clusterRegion string, clusterProject string) 
 	return shoots, nil
 }
 
-func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string, shootClusterRequest ShootClusterRequest) (*ShootClusterResponse, error) {
+func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string, shootClusterRequest ShootClusterRequest) (*ShootClusterCreateResponse, error) {
 	//https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project
 	crJsonByte, err := json.Marshal(shootClusterRequest)
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *Client) CreateShootCluster(clusterRegion string, clusterProject string,
 	if err != nil {
 		return nil, err
 	}
-	var createdShootCluster ShootClusterResponse
+	var createdShootCluster ShootClusterCreateResponse
 	err = json.Unmarshal(body, &createdShootCluster)
 	if err != nil {
 		return nil, err

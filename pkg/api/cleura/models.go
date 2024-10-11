@@ -7,6 +7,20 @@ type ShootClusterResponse struct {
 	Status   StatusFields   `json:"status"`
 }
 
+type ShootClusterCreateResponse struct {
+	Shoot ShootClusterCreateResponseConfig `json:"shoot"`
+}
+
+type ShootClusterCreateResponseConfig struct {
+	Name        string             `json:"name"`
+	UID         string             `json:"uid"`
+	Kubernetes  KubernetesDetails  `json:"kubernetes"`
+	Provider    ProviderDetails    `json:"provider"`
+	Purpose     string             `json:"purpose"`
+	Region      string             `json:"region"`
+	Hibernation HibernationDetails `json:"hibernation"`
+}
+
 type MetadataFields struct {
 	Name string `json:"name"`
 	UID  string `json:"uid"`
