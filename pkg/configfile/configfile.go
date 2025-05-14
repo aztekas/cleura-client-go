@@ -30,6 +30,7 @@ type profile struct {
 	DefaultRegion    string `yaml:"region,omitempty"`
 	DefaultProjectID string `yaml:"project-id,omitempty"`
 	ApiUrl           string `yaml:"api-url,omitempty"`
+	GardenerDomain   string `yaml:"gardener-domain,omitempty"`
 }
 
 // Validate configuration file for active profile and profile data.
@@ -52,7 +53,7 @@ func (c *Configuration) GetActiveProfile() string {
 }
 
 // Add new profile to the configuration file.
-func (c *Configuration) AddProfile(name string, username string, token string, domainid string, region string, projectid string, apiurl string) error {
+func (c *Configuration) AddProfile(name string, username string, token string, domainid string, region string, projectid string, apiurl string, gardenDomain string) error {
 	c.configFile.Profiles[name] = profile{
 		Username:         username,
 		Token:            token,
@@ -60,6 +61,7 @@ func (c *Configuration) AddProfile(name string, username string, token string, d
 		DefaultRegion:    region,
 		DefaultProjectID: projectid,
 		ApiUrl:           apiurl,
+		GardenerDomain:   gardenDomain,
 	}
 	err := writeConfigFile(c.Location, c.configFile)
 	if err != nil {
@@ -171,6 +173,7 @@ func CreateConfigTemplateFile(filename string) error {
 				DefaultRegion:    "region-placeholder",
 				DefaultProjectID: "projectid-placeholder",
 				ApiUrl:           "https://rest.cleura.cloud",
+				GardenerDomain:   "public",
 			},
 		},
 	}

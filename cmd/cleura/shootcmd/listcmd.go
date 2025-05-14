@@ -33,6 +33,7 @@ func listCommand() *cli.Command {
 				"api-host",
 				"region",
 				"project-id",
+				"gardener-domain",
 			)
 			if err != nil {
 				return err
