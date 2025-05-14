@@ -44,7 +44,7 @@ func wakeupCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			err = client.WakeUpCluster(ctx.String("region"), ctx.String("project-id"), ctx.String("cluster-name"))
+			err = client.WakeUpCluster(ctx.String("gardener-domain"), ctx.String("region"), ctx.String("project-id"), ctx.String("cluster-name"))
 			if err != nil {
 				return err
 			}

@@ -33,6 +33,7 @@ func listCommand() *cli.Command {
 				"api-host",
 				"region",
 				"project-id",
+				"gardener-domain",
 			)
 			if err != nil {
 				return err
@@ -45,7 +46,7 @@ func listCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			clusterList, err := client.ListShootClusters(ctx.String("region"), ctx.String("project-id"))
+			clusterList, err := client.ListShootClusters(ctx.String("gardener-domain"), ctx.String("region"), ctx.String("project-id"))
 			if err != nil {
 				re, ok := err.(*cleura.RequestAPIError)
 				if ok {

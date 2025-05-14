@@ -44,6 +44,13 @@ func CleuraAuthFlags() []cli.Flag {
 func LocationFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
+			Name:        "gardener-domain",
+			Category:    "Location settings",
+			Usage:       "Specify gardener domain, defaults to 'public'",
+			EnvVars:     []string{"CLEURA_API_GARDENER_DOMAIN"},
+			DefaultText: "public",
+		},
+		&cli.StringFlag{
 			Name:     "region",
 			Category: "Location settings",
 			Aliases:  []string{"r"},

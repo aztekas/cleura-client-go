@@ -45,6 +45,7 @@ func genKubeConfigCommand() *cli.Command {
 				"api-host",
 				"region",
 				"project-id",
+				"gardener-domain",
 			)
 			if err != nil {
 				return err
@@ -58,6 +59,7 @@ func genKubeConfigCommand() *cli.Command {
 				return err
 			}
 			body, err := client.GenerateKubeConfig(
+				ctx.String("gardener-domain"),
 				ctx.String("region"),
 				ctx.String("project-id"),
 				ctx.String("cluster-name"),

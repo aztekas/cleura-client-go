@@ -130,6 +130,7 @@ func createCommand() *cli.Command {
 				"api-host",
 				"region",
 				"project-id",
+				"gardener-domain",
 			)
 			if err != nil {
 				return err
@@ -146,7 +147,7 @@ func createCommand() *cli.Command {
 			}
 			if ctx.Bool("cluster") {
 				clusterReq := generateShootClusterRequest(ctx)
-				_, err := client.CreateShootCluster(ctx.String("region"), ctx.String("project-id"), clusterReq)
+				_, err := client.CreateShootCluster(ctx.String("gardener-domain"), ctx.String("region"), ctx.String("project-id"), clusterReq)
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)
 					if ok {
@@ -166,7 +167,7 @@ func createCommand() *cli.Command {
 				// 	return err
 				// }
 				// fmt.Printf("%s", string(body))
-				resp, err := client.AddWorkerGroup(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), wgReq)
+				resp, err := client.AddWorkerGroup(ctx.String("gardener-domain"), ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), wgReq)
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)
 					if ok {
