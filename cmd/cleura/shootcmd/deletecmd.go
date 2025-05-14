@@ -81,7 +81,7 @@ func deleteCommand() *cli.Command {
 				return err
 			}
 			if ctx.Bool("cluster") {
-				_, err := client.DeleteShootCluster(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"))
+				_, err := client.DeleteShootCluster(ctx.String("gardener-domain"), ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"))
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)
 					if ok {
@@ -94,7 +94,7 @@ func deleteCommand() *cli.Command {
 				fmt.Printf("Cluster: `%s` is being deleted.\nPlease check operation status with `cleura shoot list` command\n", ctx.String("cluster-name"))
 			}
 			if ctx.Bool("workergroup") {
-				_, err := client.DeleteWorkerGroup(ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), ctx.String("wg-name"))
+				_, err := client.DeleteWorkerGroup(ctx.String("gardener-domain"), ctx.String("cluster-name"), ctx.String("region"), ctx.String("project-id"), ctx.String("wg-name"))
 				if err != nil {
 					re, ok := err.(*cleura.RequestAPIError)
 					if ok {

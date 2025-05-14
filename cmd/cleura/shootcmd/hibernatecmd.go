@@ -44,7 +44,7 @@ func hibernateCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			err = client.HibernateCluster(ctx.String("region"), ctx.String("project-id"), ctx.String("cluster-name"))
+			err = client.HibernateCluster(ctx.String("gardener-domain"), ctx.String("region"), ctx.String("project-id"), ctx.String("cluster-name"))
 			if err != nil {
 				return err
 			}

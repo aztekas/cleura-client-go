@@ -1,6 +1,6 @@
 module github.com/aztekas/cleura-client-go
 
-go 1.21.5
+go 1.24.3
 
 require (
 	github.com/gofrs/flock v0.8.1
