@@ -2,36 +2,36 @@ package cleura
 
 // Shoot cluster response data model.
 type ShootClusterResponse struct {
-	Metadata MetadataFields `json:"metadata"`
-	Spec     SpecFields     `json:"spec"`
-	Status   StatusFields   `json:"status"`
+	Metadata MetadataFieldsResponse `json:"metadata"`
+	Spec     SpecFieldsResponse     `json:"spec"`
+	Status   StatusFieldsResponse   `json:"status"`
 }
 
 type ShootClusterCreateResponse struct {
-	Shoot ShootClusterCreateResponseConfig `json:"shoot"`
+	Shoot ShootClusterCreateConfigResponse `json:"shoot"`
 }
 
-type ShootClusterCreateResponseConfig struct {
-	Name        string             `json:"name"`
-	UID         string             `json:"uid"`
-	Kubernetes  KubernetesDetails  `json:"kubernetes"`
-	Provider    ProviderDetails    `json:"provider"`
-	Purpose     string             `json:"purpose"`
-	Region      string             `json:"region"`
-	Hibernation HibernationDetails `json:"hibernation"`
+type ShootClusterCreateConfigResponse struct {
+	Name        string                        `json:"name"`
+	UID         string                        `json:"uid"`
+	Kubernetes  KubernetesDetailsResponse     `json:"kubernetes"`
+	Provider    ProviderDetailsCreateResponse `json:"provider"`
+	Purpose     string                        `json:"purpose"`
+	Region      string                        `json:"region"`
+	Hibernation HibernationDetails            `json:"hibernation"`
 }
 
-type MetadataFields struct {
+type MetadataFieldsResponse struct {
 	Name string `json:"name"`
 	UID  string `json:"uid"`
 }
 
-type SpecFields struct {
-	Purpose     string             `json:"purpose"`
-	Region      string             `json:"region"`
-	Provider    ProviderDetails    `json:"provider"`
-	Kubernetes  KubernetesDetails  `json:"kubernetes"`
-	Hibernation HibernationDetails `json:"hibernation"`
+type SpecFieldsResponse struct {
+	Purpose     string                        `json:"purpose"`
+	Region      string                        `json:"region"`
+	Provider    ProviderDetailsUpdateResponse `json:"provider"`
+	Kubernetes  KubernetesDetailsResponse     `json:"kubernetes"`
+	Hibernation HibernationDetails            `json:"hibernation"`
 }
 
 type HibernationDetails struct {
@@ -45,11 +45,11 @@ type HibernationResponseSchedule struct {
 	Location string `json:"location"`
 }
 
-type KubernetesDetails struct {
+type KubernetesDetailsResponse struct {
 	Version string `json:"version"`
 }
 
-type StatusFields struct {
+type StatusFieldsResponse struct {
 	Conditions          []Condition          `json:"conditions"`
 	Hibernated          bool                 `json:"hibernated"`
 	AdvertisedAddresses []AdvertisedAddress  `json:"advertisedAddresses"`
@@ -79,18 +79,28 @@ type ShootClusterRequest struct {
 }
 
 type ShootClusterRequestConfig struct {
-	Name              string                `json:"name,omitempty"`
-	KubernetesVersion *K8sVersion           `json:"kubernetes,omitempty"`
-	Provider          *ProviderDetails      `json:"provider,omitempty"`
-	Hibernation       *HibernationSchedules `json:"hibernation,omitempty"`
+	Name              string                  `json:"name,omitempty"`
+	KubernetesVersion *K8sVersion             `json:"kubernetes,omitempty"`
+	Provider          *ProviderDetailsRequest `json:"provider,omitempty"`
+	Hibernation       *HibernationSchedules   `json:"hibernation,omitempty"`
 }
 type K8sVersion struct {
 	Version string `json:"version"`
 }
 
-type ProviderDetails struct {
+type ProviderDetailsRequest struct {
 	InfrastructureConfig InfrastructureConfigDetails `json:"infrastructureConfig"`
-	Workers              []Worker                    `json:"workers"`
+	Workers              []WorkerRequest             `json:"workers"`
+}
+
+type ProviderDetailsCreateResponse struct {
+	InfrastructureConfig InfrastructureConfigDetails `json:"infrastructureConfig"`
+	Workers              []WorkerCreateResponse      `json:"workers"`
+}
+
+type ProviderDetailsUpdateResponse struct {
+	InfrastructureConfig InfrastructureConfigDetails `json:"infrastructureConfig"`
+	Workers              []WorkerUpdateResponse      `json:"workers"`
 }
 
 type InfrastructureConfigDetails struct {
@@ -105,13 +115,43 @@ type WorkerNetwork struct {
 */
 
 // Worker.
-type Worker struct {
-	Name     string         `json:"name,omitempty"`
-	Minimum  int16          `json:"minimum,omitempty"`
-	Maximum  int16          `json:"maximum,omitempty"`
-	MaxSurge int16          `json:"maxSurge,omitempty"`
-	Machine  MachineDetails `json:"machine"`
-	Volume   VolumeDetails  `json:"volume"`
+type WorkerRequest struct {
+	Name        string         `json:"name,omitempty"`
+	Minimum     int16          `json:"minimum,omitempty"`
+	Maximum     int16          `json:"maximum,omitempty"`
+	MaxSurge    int16          `json:"maxSurge,omitempty"`
+	Machine     MachineDetails `json:"machine"`
+	Volume      VolumeDetails  `json:"volume"`
+	Labels      []KeyValuePair `json:"labels"`
+	Annotations []KeyValuePair `json:"annotations"`
+	Taints      []Taint        `json:"taints"`
+	Zones       []string       `json:"zones,omitempty"`
+}
+
+type WorkerCreateResponse struct {
+	Name        string                  `json:"name,omitempty"`
+	Minimum     int16                   `json:"minimum,omitempty"`
+	Maximum     int16                   `json:"maximum,omitempty"`
+	MaxSurge    int16                   `json:"maxSurge,omitempty"`
+	Machine     MachineDetails          `json:"machine"`
+	Volume      VolumeDetails           `json:"volume"`
+	Labels      map[string]KeyValuePair `json:"labels"`
+	Annotations map[string]KeyValuePair `json:"annotations"`
+	Taints      []Taint                 `json:"taints"`
+	Zones       []string                `json:"zones,omitempty"`
+}
+
+type WorkerUpdateResponse struct {
+	Name        string            `json:"name,omitempty"`
+	Minimum     int16             `json:"minimum,omitempty"`
+	Maximum     int16             `json:"maximum,omitempty"`
+	MaxSurge    int16             `json:"maxSurge,omitempty"`
+	Machine     MachineDetails    `json:"machine"`
+	Volume      VolumeDetails     `json:"volume"`
+	Labels      map[string]string `json:"labels"`
+	Annotations map[string]string `json:"annotations"`
+	Taints      []Taint           `json:"taints"`
+	Zones       []string          `json:"zones,omitempty"`
 }
 
 type MachineDetails struct {
@@ -127,6 +167,17 @@ type VolumeDetails struct {
 	Size string `json:"size"`
 }
 
+type KeyValuePair struct {
+	Key   string `json:"key,omitempty"`
+	Value string `json:"value,omitempty"`
+}
+
+type Taint struct {
+	Key    string `json:"key,omitempty"`
+	Value  string `json:"value,omitempty"`
+	Effect string `json:"effect,omitempty"`
+}
+
 type HibernationSchedules struct {
 	HibernationSchedules []HibernationSchedule `json:"schedules,omitempty"`
 }
@@ -139,7 +190,7 @@ type HibernationSchedule struct {
 // Worker groups.
 
 type WorkerGroupRequest struct {
-	Worker Worker `json:"worker"`
+	Worker WorkerRequest `json:"worker"`
 }
 
 // Gardener Cloud Profiles

@@ -2,6 +2,7 @@ package shootcmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aztekas/cleura-client-go/cmd/cleura/common"
 	"github.com/aztekas/cleura-client-go/cmd/cleura/configcmd"
@@ -100,6 +101,54 @@ func createCommand() *cli.Command {
 				Usage:    "Workergroup machine volume size",
 				Value:    "50Gi",
 			},
+			&cli.StringSliceFlag{
+				Name:     "wg-annotation",
+				Category: "Workergroup settings",
+				Usage:    "Custom annotations for workergroup, can be set multiple times. supplied as key=value",
+				Value:    &cli.StringSlice{},
+				Action: func(ctx *cli.Context, s []string) error {
+					for _, param := range s {
+						if !strings.Contains(param, "=") {
+							return fmt.Errorf("error: Annotations must be supplied as key=value")
+						}
+					}
+					return nil
+				},
+			},
+			&cli.StringSliceFlag{
+				Name:     "wg-label",
+				Category: "Workergroup settings",
+				Usage:    "Custom labels for workergroup, can be set multiple times. supplied as key=value",
+				Value:    &cli.StringSlice{},
+				Action: func(ctx *cli.Context, s []string) error {
+					for _, param := range s {
+						if !strings.Contains(param, "=") {
+							return fmt.Errorf("error: Labels must be supplied as key=value")
+						}
+					}
+					return nil
+				},
+			},
+			&cli.StringSliceFlag{
+				Name:     "wg-taint",
+				Category: "Workergroup settings",
+				Usage:    "Custom taints for workergroup, can be set multiple times. supplied as key=value",
+				Value:    &cli.StringSlice{},
+				Action: func(ctx *cli.Context, s []string) error {
+					for _, param := range s {
+						if !strings.Contains(param, "=") {
+							return fmt.Errorf("error: Taints must be supplied as key=value")
+						}
+					}
+					return nil
+				},
+			},
+			&cli.StringSliceFlag{
+				Name:     "wg-zone",
+				Category: "Workergroup settings",
+				Usage:    "Set compute zone for workergroup",
+				Value:    cli.NewStringSlice("nova"),
+			},
 			&cli.StringFlag{
 				Name:     "hibernation-start",
 				Category: "Hibernation settings",
@@ -192,11 +241,11 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 			KubernetesVersion: &cleura.K8sVersion{
 				Version: ctx.String("k8s-version"),
 			},
-			Provider: &cleura.ProviderDetails{
+			Provider: &cleura.ProviderDetailsRequest{
 				InfrastructureConfig: cleura.InfrastructureConfigDetails{
 					FloatingPoolName: "ext-net",
 				},
-				Workers: []cleura.Worker{
+				Workers: []cleura.WorkerRequest{
 					{
 						Minimum: int16(ctx.Int("wg-min")),
 						Maximum: int16(ctx.Int("wg-max")),
@@ -210,6 +259,7 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 						Volume: cleura.VolumeDetails{
 							Size: ctx.String("wg-volume-size"),
 						},
+						Annotations: stringSliceToKeyValueSlice(ctx.StringSlice("wg-annotation")),
 					},
 				},
 			},
@@ -232,9 +282,27 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 	return clusterReq
 }
 
+func stringSliceToKeyValueSlice(stringslice []string) []cleura.KeyValuePair {
+	var kv []cleura.KeyValuePair
+	if len(stringslice) > 0 {
+		for _, annotation := range stringslice {
+			keyValue := strings.SplitN(annotation, "=", 2)
+			if len(keyValue) != 2 {
+				panic(fmt.Errorf("expected annotation have a equal sign as delimited, got %s", annotation))
+			}
+			kv = append(kv, cleura.KeyValuePair{
+				Key:   keyValue[0],
+				Value: keyValue[1],
+			})
+		}
+	}
+	return kv
+}
+
 func generateWorkerGroupRequest(ctx *cli.Context) cleura.WorkerGroupRequest {
+
 	wgReq := cleura.WorkerGroupRequest{
-		Worker: cleura.Worker{
+		Worker: cleura.WorkerRequest{
 			Minimum: int16(ctx.Int("wg-min")),
 			Maximum: int16(ctx.Int("wg-max")),
 			Machine: cleura.MachineDetails{
@@ -247,10 +315,15 @@ func generateWorkerGroupRequest(ctx *cli.Context) cleura.WorkerGroupRequest {
 			Volume: cleura.VolumeDetails{
 				Size: ctx.String("wg-volume-size"),
 			},
+			Annotations: stringSliceToKeyValueSlice(ctx.StringSlice("wg-annotation")),
+			Labels:      stringSliceToKeyValueSlice(ctx.StringSlice("wg-label")),
+			Taints:      []cleura.Taint{},
+			Zones:       ctx.StringSlice("wg-zones"),
 		},
 	}
 	if ctx.String("wg-name") != "" {
 		wgReq.Worker.Name = ctx.String("wg-name")
 	}
+	fmt.Println(wgReq)
 	return wgReq
 }
