@@ -105,7 +105,6 @@ func createCommand() *cli.Command {
 				Name:     "wg-annotation",
 				Category: "Workergroup settings",
 				Usage:    "Custom annotations for workergroup, can be set multiple times. supplied as key=value",
-				Value:    &cli.StringSlice{},
 				Action: func(ctx *cli.Context, s []string) error {
 					for _, param := range s {
 						if !strings.Contains(param, "=") {
@@ -119,7 +118,6 @@ func createCommand() *cli.Command {
 				Name:     "wg-label",
 				Category: "Workergroup settings",
 				Usage:    "Custom labels for workergroup, can be set multiple times. supplied as key=value",
-				Value:    &cli.StringSlice{},
 				Action: func(ctx *cli.Context, s []string) error {
 					for _, param := range s {
 						if !strings.Contains(param, "=") {
@@ -133,11 +131,10 @@ func createCommand() *cli.Command {
 				Name:     "wg-taint",
 				Category: "Workergroup settings",
 				Usage:    "Custom taints for workergroup, can be set multiple times. supplied as key=value",
-				Value:    &cli.StringSlice{},
 				Action: func(ctx *cli.Context, s []string) error {
 					for _, param := range s {
-						if !strings.Contains(param, "=") {
-							return fmt.Errorf("error: Taints must be supplied as key=value")
+						if !strings.Contains(param, "=") || !strings.Contains(param, ":") {
+							return fmt.Errorf("error: Taints must be supplied as key=value:effect")
 						}
 					}
 					return nil
@@ -147,7 +144,6 @@ func createCommand() *cli.Command {
 				Name:     "wg-zone",
 				Category: "Workergroup settings",
 				Usage:    "Set compute zone for workergroup",
-				Value:    cli.NewStringSlice("nova"),
 			},
 			&cli.StringFlag{
 				Name:     "hibernation-start",
@@ -170,6 +166,40 @@ func createCommand() *cli.Command {
 					}
 					return nil
 				},
+			},
+			&cli.StringFlag{
+				Name:     "maintenance-start",
+				Category: "Maintenance settings",
+				Usage:    "Maintenance schedule, Start in format 010000+0000, (e.g. 04:00:00 UTC)",
+				Action: func(ctx *cli.Context, s string) error {
+					if ctx.String("maintenance-end") == "" {
+						return fmt.Errorf("error: both maintenance -start and -end flags must be supplied")
+					}
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "maintenance-end",
+				Category: "Maintenance settings",
+				Usage:    "Maintenance schedule, End in format 040000+0000, (e.g. 04:00:00 UTC)",
+				Action: func(ctx *cli.Context, s string) error {
+					if ctx.String("maintenance-start") == "" {
+						return fmt.Errorf("error: both maintenance -start and -end flags must be supplied")
+					}
+					return nil
+				},
+			},
+			&cli.BoolFlag{
+				Name:     "allow-k8s-autoupdate",
+				Category: "Maintenance settings",
+				Usage:    "Toggle if automatic updates of kubernetes is allowed",
+				Value:    true,
+			},
+			&cli.BoolFlag{
+				Name:     "allow-worker-image-autoupdate",
+				Category: "Maintenance settings",
+				Usage:    "Toggle if automatic updates of kubernetes is allowed",
+				Value:    true,
 			},
 		),
 		Action: func(ctx *cli.Context) error {
@@ -234,12 +264,21 @@ func createCommand() *cli.Command {
 }
 
 func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
-
 	clusterReq := cleura.ShootClusterRequest{
 		Shoot: cleura.ShootClusterRequestConfig{
 			Name: ctx.String("cluster-name"),
 			KubernetesVersion: &cleura.K8sVersion{
 				Version: ctx.String("k8s-version"),
+			},
+			Maintenance: &cleura.MaintenanceDetails{
+				AutoUpdate: cleura.AutoUpdateDetails{
+					KubernetesVersion:   ctx.Bool("allow-k8s-autoupdate"),
+					MachineImageVersion: ctx.Bool("allow-worker-image-autoupdate"),
+				},
+				TimeWindow: cleura.TimeWindowDetails{
+					Begin: "000000+0000",
+					End:   "010000+0000",
+				},
 			},
 			Provider: &cleura.ProviderDetailsRequest{
 				InfrastructureConfig: cleura.InfrastructureConfigDetails{
@@ -260,6 +299,9 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 							Size: ctx.String("wg-volume-size"),
 						},
 						Annotations: stringSliceToKeyValueSlice(ctx.StringSlice("wg-annotation")),
+						Labels:      stringSliceToKeyValueSlice(ctx.StringSlice("wg-labels")),
+						Taints:      taintStringSliceToKeyValueSlice(ctx.StringSlice("wg-taints")),
+						Zones:       ctx.StringSlice("wg-labels"),
 					},
 				},
 			},
@@ -269,6 +311,18 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 	if ctx.String("wg-name") != "" {
 		clusterReq.Shoot.Provider.Workers[0].Name = ctx.String("wg-name")
 	}
+
+	if ctx.String("maintenance-start") != "" && ctx.String("maintenance-end") != "" {
+		clusterReq.Shoot.Maintenance.TimeWindow = cleura.TimeWindowDetails{
+			Begin: ctx.String("maintenance-start"),
+			End:   ctx.String("maintenance-end"),
+		}
+	}
+
+	if ctx.String("wg-name") != "" {
+		clusterReq.Shoot.Provider.Workers[0].Name = ctx.String("wg-name")
+	}
+
 	if ctx.String("hibernation-start") != "" && ctx.String("hibernation-end") != "" {
 		clusterReq.Shoot.Hibernation = &cleura.HibernationSchedules{
 			HibernationSchedules: []cleura.HibernationSchedule{
@@ -283,7 +337,7 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 }
 
 func stringSliceToKeyValueSlice(stringslice []string) []cleura.KeyValuePair {
-	var kv []cleura.KeyValuePair
+	kv := make([]cleura.KeyValuePair, 0)
 	if len(stringslice) > 0 {
 		for _, annotation := range stringslice {
 			keyValue := strings.SplitN(annotation, "=", 2)
@@ -293,6 +347,28 @@ func stringSliceToKeyValueSlice(stringslice []string) []cleura.KeyValuePair {
 			kv = append(kv, cleura.KeyValuePair{
 				Key:   keyValue[0],
 				Value: keyValue[1],
+			})
+		}
+	}
+	return kv
+}
+
+func taintStringSliceToKeyValueSlice(stringslice []string) []cleura.Taint {
+	kv := make([]cleura.Taint, 0)
+	if len(stringslice) > 0 {
+		for _, annotation := range stringslice {
+			keyValue := strings.SplitN(annotation, "=", 2)
+			if len(keyValue) != 2 {
+				panic(fmt.Errorf("expected annotation have a equal sign as delimiter for key=value, got %s", annotation))
+			}
+			valueEffect := strings.SplitN(keyValue[1], ":", 2)
+			if len(keyValue) != 2 {
+				panic(fmt.Errorf("expected annotation have a colon sign as delimiter for value:effect, got %s", annotation))
+			}
+			kv = append(kv, cleura.Taint{
+				Key:    keyValue[0],
+				Value:  valueEffect[0],
+				Effect: valueEffect[1],
 			})
 		}
 	}

@@ -19,6 +19,7 @@ type ShootClusterCreateConfigResponse struct {
 	Purpose     string                        `json:"purpose"`
 	Region      string                        `json:"region"`
 	Hibernation HibernationDetails            `json:"hibernation"`
+	Maintenance MaintenanceDetails            `json:"maintenance,omitempty"`
 }
 
 type MetadataFieldsResponse struct {
@@ -43,6 +44,21 @@ type HibernationResponseSchedule struct {
 	Start    string `json:"start"`
 	End      string `json:"end"`
 	Location string `json:"location"`
+}
+
+type MaintenanceDetails struct {
+	AutoUpdate AutoUpdateDetails `json:"autoUpdate,omitempty"`
+	TimeWindow TimeWindowDetails `json:"timeWindow,omitempty"`
+}
+
+type AutoUpdateDetails struct {
+	KubernetesVersion   bool `json:"kubernetesVersion"`
+	MachineImageVersion bool `json:"machineImageVersion"`
+}
+
+type TimeWindowDetails struct {
+	Begin string `json:"begin"`
+	End   string `json:"end"`
 }
 
 type KubernetesDetailsResponse struct {
@@ -83,6 +99,7 @@ type ShootClusterRequestConfig struct {
 	KubernetesVersion *K8sVersion             `json:"kubernetes,omitempty"`
 	Provider          *ProviderDetailsRequest `json:"provider,omitempty"`
 	Hibernation       *HibernationSchedules   `json:"hibernation,omitempty"`
+	Maintenance       *MaintenanceDetails     `json:"maintenance,omitempty"`
 }
 type K8sVersion struct {
 	Version string `json:"version"`
