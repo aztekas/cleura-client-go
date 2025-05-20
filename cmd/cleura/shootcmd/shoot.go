@@ -9,6 +9,8 @@ func Command() *cli.Command {
 		Usage:       "Command used to perform operations with shoot clusters",
 		Subcommands: []*cli.Command{
 			genKubeConfigCommand(),
+			getKubeConfigCommand(),
+			getMonitoringCredentialsCommand(),
 			listCommand(),
 			createCommand(),
 			deleteCommand(),

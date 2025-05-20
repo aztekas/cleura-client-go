@@ -198,6 +198,34 @@ func (c *Client) GenerateKubeConfig(gardenDomain, clusterRegion string, clusterP
 	return body, nil
 }
 
+func (c *Client) GetKubeConfig(gardenDomain, clusterRegion string, clusterProject string, clusterName string) ([]byte, error) {
+	// https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shootName/Kubeconfig
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/gardener/v1/%s/shoot/%s/%s/%s/kubeconfig", c.HostURL, gardenDomain, clusterRegion, clusterProject, clusterName), nil)
+	if err != nil {
+		return nil, err
+	}
+	body, err := c.doRequest(req, 200)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
+func (c *Client) GetMonitoringCredentials(gardenDomain, clusterRegion string, clusterProject string, clusterName string) ([]byte, error) {
+	// https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shootName/Kubeconfig
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/gardener/v1/%s/shoot/%s/%s/%s/monitoring", c.HostURL, gardenDomain, clusterRegion, clusterProject, clusterName), nil)
+	if err != nil {
+		return nil, err
+	}
+	body, err := c.doRequest(req, 200)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
+}
+
 // Hibernate.
 func (c *Client) HibernateCluster(gardenDomain string, clusterRegion string, clusterProject string, clusterName string) error {
 	// https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shoot/hibernate
