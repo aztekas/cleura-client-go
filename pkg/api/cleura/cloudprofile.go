@@ -9,10 +9,8 @@ import (
 // Get Cloud Profile Data.
 // This can be used get available kubernetes versions,machine types and images suitable for
 // specification in shoot clusters/ worker groups.
-func (c *Client) GetCloudProfile() (*CloudProfile, error) {
-	// https://rest.cleura.cloud/gardener/v1/public/cloudprofile
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/gardener/v1/public/cloudprofile", c.HostURL), nil)
+func (c *Client) GetCloudProfile(gardenDomain string) (*CloudProfile, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/gardener/v1/%s/cloudprofile", c.HostURL, gardenDomain), nil)
 	if err != nil {
 		return nil, err
 	}

@@ -62,7 +62,7 @@ func (c *Client) CreateShootCluster(gardenDomain string, clusterRegion string, c
 	var createdShootCluster ShootClusterCreateResponse
 	err = json.Unmarshal(body, &createdShootCluster)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s. req: %s body: %s", err.Error(), crJsonByte, body)
 	}
 
 	return &createdShootCluster, nil
