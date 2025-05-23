@@ -271,11 +271,11 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 				Version: ctx.String("k8s-version"),
 			},
 			Maintenance: &cleura.MaintenanceDetails{
-				AutoUpdate: cleura.AutoUpdateDetails{
+				AutoUpdate: &cleura.AutoUpdateDetails{
 					KubernetesVersion:   ctx.Bool("allow-k8s-autoupdate"),
 					MachineImageVersion: ctx.Bool("allow-worker-image-autoupdate"),
 				},
-				TimeWindow: cleura.TimeWindowDetails{
+				TimeWindow: &cleura.TimeWindowDetails{
 					Begin: "000000+0000",
 					End:   "010000+0000",
 				},
@@ -313,7 +313,7 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 	}
 
 	if ctx.String("maintenance-start") != "" && ctx.String("maintenance-end") != "" {
-		clusterReq.Shoot.Maintenance.TimeWindow = cleura.TimeWindowDetails{
+		clusterReq.Shoot.Maintenance.TimeWindow = &cleura.TimeWindowDetails{
 			Begin: ctx.String("maintenance-start"),
 			End:   ctx.String("maintenance-end"),
 		}
