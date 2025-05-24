@@ -201,6 +201,33 @@ func createCommand() *cli.Command {
 				Usage:    "Toggle if automatic updates of kubernetes is allowed",
 				Value:    true,
 			},
+			&cli.StringFlag{
+				Name:     "network-id",
+				Category: "Network settings",
+				Usage:    "ID of an existing OpenStack network to attach workers on",
+				Action: func(ctx *cli.Context, s string) error {
+					if ctx.String("router-id") == "" {
+						return fmt.Errorf("error: both network-id and router-id flags must be set")
+					}
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "router-id",
+				Category: "Network settings",
+				Usage:    "ID of an existing OpenStack router managing the worker node subnet",
+				Action: func(ctx *cli.Context, s string) error {
+					if ctx.String("network-id") == "" {
+						return fmt.Errorf("error: both network-id and router-id flags must be set")
+					}
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:     "subnet-cidr",
+				Category: "Network settings",
+				Usage:    "Custom subnet CIDR to use for worker nodes",
+			},
 		),
 		Action: func(ctx *cli.Context) error {
 			err := common.ValidateNotEmptyString(ctx,
@@ -333,6 +360,23 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 			},
 		}
 	}
+
+	if ctx.String("network-id") != "" && ctx.String("router-id") != "" {
+		clusterReq.Shoot.Provider.InfrastructureConfig.Networks = &cleura.WorkerNetwork{
+			Id: ctx.String("network-id"),
+			Router: cleura.Router{
+				Id: ctx.String("router-id"),
+			},
+		}
+	}
+
+	if cidr := ctx.String("subnet-cidr"); cidr != "" {
+		if clusterReq.Shoot.Provider.InfrastructureConfig.Networks == nil {
+			clusterReq.Shoot.Provider.InfrastructureConfig.Networks = &cleura.WorkerNetwork{}
+		}
+		clusterReq.Shoot.Provider.InfrastructureConfig.Networks.WorkersCIDR = cidr
+	}
+
 	return clusterReq
 }
 

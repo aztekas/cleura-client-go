@@ -122,15 +122,19 @@ type ProviderDetailsUpdateResponse struct {
 }
 
 type InfrastructureConfigDetails struct {
-	FloatingPoolName string `json:"floatingPoolName"`
-	// Networks *WorkerNetwork `json:"networks,omitempty"`
+	FloatingPoolName string         `json:"floatingPoolName"`
+	Networks         *WorkerNetwork `json:"networks,omitempty"`
 }
 
-/*
 type WorkerNetwork struct {
+	Id          string `json:"id,omitempty"`
+	Router      Router `json:"router,omitempty"`
 	WorkersCIDR string `json:"workers,omitempty"`
 }
-*/
+
+type Router struct {
+	Id string `json:"id,omitempty"`
+}
 
 // Worker.
 type WorkerRequest struct {
