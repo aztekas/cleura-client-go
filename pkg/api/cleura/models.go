@@ -237,10 +237,19 @@ type CPVersion struct {
 type CPKubernetes struct {
 	Versions []CPVersion `json:"versions"`
 }
+type CPRegion struct {
+	Name  string   `json:"name"`
+	Zones []CPZone `json:"zones"`
+}
+type CPZone struct {
+	Name                   string   `json:"name"`
+	UnavailableVolumeTypes []string `json:"unavailableVolumeTypes"`
+}
 type CloudProfileSpec struct {
 	Kubernetes    CPKubernetes     `json:"kubernetes"`
 	MachineImages []CPMachineImage `json:"machineImages"`
 	MachineTypes  []CPMachineType  `json:"machineTypes"`
+	Regions       []CPRegion       `json:"regions"`
 }
 type CloudProfile struct {
 	Name string           `json:"name"`
