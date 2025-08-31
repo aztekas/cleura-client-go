@@ -12,14 +12,15 @@ type ShootClusterCreateResponse struct {
 }
 
 type ShootClusterCreateConfigResponse struct {
-	Name        string                        `json:"name"`
-	UID         string                        `json:"uid"`
-	Kubernetes  KubernetesDetailsResponse     `json:"kubernetes"`
-	Provider    ProviderDetailsCreateResponse `json:"provider"`
-	Purpose     string                        `json:"purpose"`
-	Region      string                        `json:"region"`
-	Hibernation HibernationDetails            `json:"hibernation"`
-	Maintenance MaintenanceDetails            `json:"maintenance"`
+	Name         string                        `json:"name"`
+	UID          string                        `json:"uid"`
+	Kubernetes   KubernetesDetailsResponse     `json:"kubernetes"`
+	Provider     ProviderDetailsCreateResponse `json:"provider"`
+	Purpose      string                        `json:"purpose"`
+	Region       string                        `json:"region"`
+	Hibernation  HibernationDetails            `json:"hibernation"`
+	Maintenance  MaintenanceDetails            `json:"maintenance"`
+	ControlPlane ControlPlaneDetails           `json:"controlPlane,omitempty"`
 }
 
 type MetadataFieldsResponse struct {
@@ -28,12 +29,13 @@ type MetadataFieldsResponse struct {
 }
 
 type SpecFieldsResponse struct {
-	Purpose     string                        `json:"purpose"`
-	Region      string                        `json:"region"`
-	Provider    ProviderDetailsUpdateResponse `json:"provider"`
-	Kubernetes  KubernetesDetailsResponse     `json:"kubernetes"`
-	Hibernation HibernationDetails            `json:"hibernation"`
-	Maintenance MaintenanceDetails            `json:"maintenance"`
+	Purpose      string                        `json:"purpose"`
+	Region       string                        `json:"region"`
+	Provider     ProviderDetailsUpdateResponse `json:"provider"`
+	Kubernetes   KubernetesDetailsResponse     `json:"kubernetes"`
+	Hibernation  HibernationDetails            `json:"hibernation"`
+	Maintenance  MaintenanceDetails            `json:"maintenance"`
+	ControlPlane ControlPlaneDetails           `json:"controlPlane,omitempty"`
 }
 
 type HibernationDetails struct {
@@ -90,17 +92,30 @@ type AdvertisedAddress struct {
 	Url  string `json:"url"`
 }
 
+type ControlPlaneDetails struct {
+	HighAvailability HighAvailabilityDetails `json:"highAvailability"`
+}
+
+type HighAvailabilityDetails struct {
+	FailureTolerance FailureToleranceDetails `json:"failureTolerance"`
+}
+
+type FailureToleranceDetails struct {
+	Type string `json:"type"`
+}
+
 // Shoot cluster request data model.
 type ShootClusterRequest struct {
 	Shoot ShootClusterRequestConfig `json:"shoot"`
 }
 
 type ShootClusterRequestConfig struct {
-	Name              string                  `json:"name,omitempty"`
-	KubernetesVersion *K8sVersion             `json:"kubernetes,omitempty"`
-	Provider          *ProviderDetailsRequest `json:"provider,omitempty"`
-	Hibernation       *HibernationSchedules   `json:"hibernation,omitempty"`
-	Maintenance       *MaintenanceDetails     `json:"maintenance,omitempty"`
+	Name                 string                  `json:"name,omitempty"`
+	EnableHaControlPlane bool                    `json:"enableHaControlPlane,omitempty"`
+	KubernetesVersion    *K8sVersion             `json:"kubernetes,omitempty"`
+	Provider             *ProviderDetailsRequest `json:"provider,omitempty"`
+	Hibernation          *HibernationSchedules   `json:"hibernation,omitempty"`
+	Maintenance          *MaintenanceDetails     `json:"maintenance,omitempty"`
 }
 type K8sVersion struct {
 	Version string `json:"version"`
@@ -237,10 +252,19 @@ type CPVersion struct {
 type CPKubernetes struct {
 	Versions []CPVersion `json:"versions"`
 }
+type CPRegion struct {
+	Name  string   `json:"name"`
+	Zones []CPZone `json:"zones"`
+}
+type CPZone struct {
+	Name                   string   `json:"name"`
+	UnavailableVolumeTypes []string `json:"unavailableVolumeTypes"`
+}
 type CloudProfileSpec struct {
 	Kubernetes    CPKubernetes     `json:"kubernetes"`
 	MachineImages []CPMachineImage `json:"machineImages"`
 	MachineTypes  []CPMachineType  `json:"machineTypes"`
+	Regions       []CPRegion       `json:"regions"`
 }
 type CloudProfile struct {
 	Name string           `json:"name"`
