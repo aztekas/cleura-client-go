@@ -65,6 +65,12 @@ func createCommand() *cli.Command {
 				Usage:    "Supported Kubernetes version",
 				Value:    "1.28.8",
 			},
+			&cli.BoolFlag{
+				Name:     "enable-ha-control-plane",
+				Category: "Basic cluster settings",
+				Usage:    "Enable HA for control plane",
+				Value:    false,
+			},
 			&cli.IntFlag{
 				Name:     "wg-min",
 				Category: "Workergroup settings",
@@ -297,6 +303,7 @@ func generateShootClusterRequest(ctx *cli.Context) cleura.ShootClusterRequest {
 			KubernetesVersion: &cleura.K8sVersion{
 				Version: ctx.String("k8s-version"),
 			},
+			EnableHaControlPlane: ctx.Bool("enable-ha-control-plane"),
 			Maintenance: &cleura.MaintenanceDetails{
 				AutoUpdate: &cleura.AutoUpdateDetails{
 					KubernetesVersion:   ctx.Bool("allow-k8s-autoupdate"),

@@ -104,6 +104,21 @@ func (c *Client) UpdateShootCluster(gardenDomain string, clusterRegion string, c
 	return &createdShootCluster, nil
 }
 
+func (c *Client) EnableHaControlPlane(gardenDomain string, clusterRegion string, clusterProject string, clusterName string, shootClusterUpdateRequest ShootClusterRequest) (bool, error) {
+
+	//https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shoot
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/gardener/v1/%s/shoot/%s/%s/%s/enable-ha-control-plane", c.HostURL, gardenDomain, clusterRegion, clusterProject, clusterName), nil)
+	if err != nil {
+		return false, err
+	}
+	_, err = c.doRequest(req, 202)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+
+}
+
 func (c *Client) AddWorkerGroup(gardenDomain string, clusterName string, clusterRegion string, clusterProject string, workerGroupRequest WorkerGroupRequest) (*ShootClusterResponse, error) {
 	//https://rest.cleura.cloud/gardener/v1/:gardenDomain/shoot/:region/:project/:shoot/worker
 	wgrJsonByte, err := json.Marshal(workerGroupRequest)
